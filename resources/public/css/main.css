@@ -1,0 +1,9 @@
+html, body {
+		overflow: hidden;
+		height: 100%;
+		min-height: 100%;
+}
+
+#app {
+		height: 100%;
+}
