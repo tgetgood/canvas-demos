@@ -58,9 +58,9 @@
         stretch 100]
     (js/Math.pow base (/ dz stretch))))
 
-(defn coord-adjust [x o z dz]
+(defn coord-adjust [x o dz]
   ;; FIXME: Uncentred
-  (* dz o))
+  (+ x (* dz (- o x))))
 
 (defn- adjust-origin
   "Given an origin, a centre of zoom and a zoom scale, return the new
@@ -68,7 +68,7 @@
   [{[x y] :origin z :zoom :as w} dz zc]
   (let [delta (zoom-factor dz)
         [zx zy] (coproject w zc)]
-    (assoc w :origin [(coord-adjust zx x z delta) (coord-adjust zy y z delta)])))
+    (assoc w :origin [(coord-adjust zx x delta) (coord-adjust zy y delta)])))
 
 (defn- adjust-zoom
   "Reducing function for zoom events. Currently just an exponential."
