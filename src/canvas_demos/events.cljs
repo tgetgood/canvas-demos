@@ -35,29 +35,29 @@
 
 (re-frame/reg-event-fx
  ::resize-canvas
- (fn [{db :db [_ canvas] :event}]
+ (fn [{db :db [_ elem] :event}]
    (let [[width height :as dim] (canvas/canvas-container-dimensions)
          offset                 (canvas/canvas-container-offset)
          window                 (get-in db db/window)]
      (array-map
       :db              (update-in db db/window assoc
                                   :width width :height height :offset offset)
-      ::resize-canvas! [canvas dim]
-      ::redraw-canvas! [(canvas/context canvas) window]))))
+      ;; We want this on the next event loop cycle, not actually delayed.
+      :dispatch-later [{:ms 0 :dispatch [::redraw-canvas elem]}]
+      ::resize-canvas! [elem dim]))))
 
 (re-frame/reg-event-fx
  ::redraw-canvas
  (fn [{[_ elem] :event db :db}]
-   (let [ctx    (canvas/context elem)
-         window (get-in db db/window)]
-     {::redraw-canvas! [ctx window]})))
+   (let [window (get-in db db/window)]
+     {::redraw-canvas! [elem window]})))
 
 ;;;;; FX
 
 (re-frame/reg-fx
  ::redraw-canvas!
- (fn [[ctx window]]
-   (drawing/draw! ctx window drawing/drawing)))
+ (fn [[elem window]]
+   (drawing/draw! (canvas/context elem) window drawing/drawing)))
 
 (re-frame/reg-fx
  ::resize-canvas!

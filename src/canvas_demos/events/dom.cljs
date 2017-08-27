@@ -142,7 +142,7 @@
  (fn [db [_ ev]]
    (let [w (get-in db db/window)
          loc (event-location w ev)]
-     (update db db/new-stroke loc))))
+     (db/new-stroke db loc))))
 
 (re-frame/reg-event-db
  ::stroke-end

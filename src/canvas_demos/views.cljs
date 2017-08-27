@@ -10,8 +10,7 @@
                             (let [elem (reagent/dom-node this)]
                               (set! (.-onresize js/window)
                                     #(events/resize-canvas-debounced elem))
-                              (re-frame/dispatch [::events/resize-canvas elem])
-                              (re-frame/dispatch [::events/redraw-canvas elem])))
+                              (re-frame/dispatch [::events/resize-canvas elem])))
     :component-did-update (fn [this]
                             (let [elem (reagent/dom-node this)]
                               (re-frame/dispatch

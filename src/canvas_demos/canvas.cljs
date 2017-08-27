@@ -71,7 +71,6 @@
 
   ;; Treat fill specially for convenience
   (when-let [fill (:fill style)]
-    (.log js/console fill)
     (set! (.-fillStyle ctx) fill)))
 
 ;;; Impl
@@ -91,7 +90,7 @@
       (with-stroke ctx
         (.moveTo ctx x1 y1)
         (.lineTo ctx x2 y2))))
-  (rectangle [this style [x1 y1] [x2 y2]]
+  (rectangle [_ style [x1 y1] [x2 y2]]
     (with-style ctx style
       (with-stroke ctx
         (.moveTo ctx x1 y1)
