@@ -2,6 +2,7 @@
   "Wrapper around HTML Canvas elements with a stateless API. All stateful canvas
   setters are replaced by a style map. As compatible with manual canvas
   manipulation as manual canvas manipulation is with itself."
+  (:require [clojure.string :as string])
   (:require-macros [canvas-demos.canvas :refer [with-style with-stroke]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -42,41 +43,38 @@
     "Rectangle defined by bottom left and top right corners")
   (circle [this style centre radius]))
 
-;;;;; Styling
-
-(def styles
+(def style-keys
   [:stroke-style
-   :fill-style
+   :line-join
+   :line-cap
+   :miter-limit
    :line-width])
 
-;; Also need to deal with gradients.
+;; TODO: Gradients
+;; TODO: Text
 
-;; FIXME: little more than a stub.
+(defn clj->jsm [k]
+  (let [bits (string/split (name k) #"-")]
+    (apply str (first bits) (map string/capitalize (rest bits)))))
+
 (defn- save-style [ctx]
-  {:stroke-style (.-strokeStyle ctx)})
+  (into {:fill (.-fillStyle ctx)}
+        (map (fn [k]
+               [k (aget ctx (clj->jsm k))])
+          style-keys)))
 
 (defn- set-style! [ctx style]
-  (set! (.-strokeStyle ctx) (:stroke-style style)))
+  (doseq [[k v] (dissoc style :fill)]
+    (when v
+      ;;FIXME: Really weird state problems.
+      (aset ctx (clj->jsm k) v)))
 
-;;;;; Coord Fudgery
-;; REVIEW: It is handy to have these methods take either a vector [x y] or a map
-;; {:x x :y y} for a point. The isomorphism is obvious, but what are the
-;; consequences of adding ad-hoc polymorphism here?
+  ;; Treat fill specially for convenience
+  (when-let [fill (:fill style)]
+    (.log js/console fill)
+    (set! (.-fillStyle ctx) fill)))
 
-(defn parse
-  "Converts coord maps and coord vectors to vectors. Also checks nothing is
-  nil."
-  [p]
-  {:pre [(or (map? p) (vector? p))]
-   :post [(every? number? %)]}
-  (if (map? p)
-    [(:x p) (:y p)]
-    p))
-
-;;;;; Canvas
-;; REVIEW: Would it be terrible form to take garbage values and just abort the
-;; render? That would simplify a lot of logic, but encourage
-;; sloppiness. Probably not worth it.
+;;; Impl
 
 (deftype Canvas [elem ctx]
   ICanvas
@@ -84,31 +82,25 @@
     (let [width (.-clientWidth elem)
           height (.-clientHeight elem)]
       (.clearRect ctx 0 0 width height)))
-  (pixel [_ style p]
-    (let [[x y] (parse p)]
-      (with-style ctx style
-        (.moveTo ctx x y)
-        (.fillRect ctx x y 1 1))))
-  (line [_ style p q]
-    (let [[x1 y1] (parse p)
-          [x2 y2] (parse q)]
-      (with-style ctx style
-        (with-stroke ctx
-          (.moveTo ctx x1 y1)
-          (.lineTo ctx x2 y2)))))
-  (rectangle [_ style p q]
-    (let [[x1 y1] (parse p)
-          [x2 y2] (parse q)]
-      (with-style ctx style
-        (with-stroke ctx
-          (.moveTo ctx x1 y1)
-          (.rect ctx x1 y1 (- x2 x1) (- y2 y1))))))
-  (circle [_ style c r]
-    (let [[x y] (parse c)]
-      (with-style ctx style
-        (with-stroke ctx
-          (.moveTo ctx (+ r x) y)
-          (.arc ctx x y r 0 (* 2 js/Math.PI)))))))
+  (pixel [_ style [x y]]
+    (with-style ctx style
+      (.moveTo ctx x y)
+      (.fillRect ctx x y 1 1)))
+  (line [_ style [x1 y1] [x2 y2]]
+    (with-style ctx style
+      (with-stroke ctx
+        (.moveTo ctx x1 y1)
+        (.lineTo ctx x2 y2))))
+  (rectangle [this style [x1 y1] [x2 y2]]
+    (with-style ctx style
+      (with-stroke ctx
+        (.moveTo ctx x1 y1)
+        (.rect ctx x1 y1 (- x2 x1) (- y2 y1)))))
+  (circle [_ style [x y] r]
+    (with-style ctx style
+      (with-stroke ctx
+        (.moveTo ctx (+ r x) y)
+        (.arc ctx x y r 0 (* 2 js/Math.PI))))))
 
 (defn context [elem]
   (let [ctx (.getContext elem "2d")]
