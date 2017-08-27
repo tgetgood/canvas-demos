@@ -2,6 +2,9 @@
   (:require [canvas-demos.canvas :as canvas]
             [canvas-demos.window :as window]))
 
+;; TODO: This custom coordinate inversion for each shape is a hack. Really we
+;; should have a vector type which can be inverted, define shapes in terms of
+;; vectors, and then walk all data being rendered...
 (defmulti invert-coords (fn [w t] (:type t)))
 
 (defmethod invert-coords :default
@@ -59,3 +62,6 @@
   (canvas/clear ctx)
   (doseq [shape (map (partial invert-coords window) content)]
     (draw* ctx shape)))
+
+#_(defn animate! [ctx window frames]
+  (re-frame/dispatch [:]))

@@ -3,7 +3,7 @@
 
 (defmacro with-stroke
   "Wraps body in boilerplate code for strokes on canvas and executes."
-  [ctx fill? & body]
+  [ctx & body]
   `(do
      (.beginPath ~ctx)
      ~@body
