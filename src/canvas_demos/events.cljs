@@ -1,9 +1,30 @@
 (ns canvas-demos.events
+  (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:require [canvas-demos.canvas :as canvas]
             [canvas-demos.db :as db]
+            [cljs.core.async :as async]
             [re-frame.core :as re-frame]
             [canvas-demos.subs :as subs]
             [canvas-demos.drawing :as drawing]))
+
+;;;;; Debounced events
+
+(defn debouncer
+  "Takes a t timeout and function f, and returns a function which when called
+  invokes f at most once every t ms. The return value of f is thrown away.
+  Intended for async event handlers."
+  [t f]
+  (let [ch (async/chan (async/sliding-buffer 1))]
+    (go-loop []
+      (when-let [v (async/<! ch)]
+        (f v)
+        (async/<! (async/timeout t))
+        (recur)))
+    (fn [v]
+      (async/put! ch v))))
+
+(def resize-canvas-debounced
+  (debouncer 500 #(re-frame/dispatch [::resize-canvas %])))
 
 ;;;;; Events
 
@@ -36,7 +57,7 @@
 (re-frame/reg-fx
  ::redraw-canvas!
  (fn [[ctx window]]
-   (drawing/draw! ctx (map (partial drawing/invert-coords window) drawing/drawing))))
+   (drawing/draw! ctx window drawing/drawing)))
 
 (re-frame/reg-fx
  ::resize-canvas!
