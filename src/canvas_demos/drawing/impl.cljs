@@ -74,10 +74,22 @@
 (defn raf [f]
   (.requestAnimationFrame js/window f))
 
-(def ^:private animation-frames (atom nil))
+(defonce ^:private animation-frames (atom nil))
+
+(def frame-counter (atom 0))
+(def prev (atom (.getTime (js/Date.))))
 
 (defn- animate* [ctx]
   (let [[frame & more] @animation-frames]
+    (swap! frame-counter inc)
+    (let [cs @frame-counter]
+      (when (< 50 cs)
+        (reset! frame-counter 0)
+        (let [now (.getTime (js/Date.))
+              elapsed (- now @prev)]
+          (reset! prev now)
+          (.log js/console (str "FPS: " (int (* 1000 (/ cs elapsed))))))))
+
     (when frame
       (draw! ctx frame)
       (swap! animation-frames rest)
