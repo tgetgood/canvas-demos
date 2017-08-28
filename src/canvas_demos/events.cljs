@@ -48,9 +48,25 @@
 
 (re-frame/reg-event-fx
  ::redraw-canvas
- (fn [{[_ elem] :event db :db}]
+ (fn [{[_ elem content] :event db :db}]
    (let [window (get-in db db/window)]
-     {::redraw-canvas! [elem window]})))
+     {::redraw-canvas! [elem window content]})))
+
+(re-frame/reg-event-db
+ ::start-animation
+ (fn [db [_ frames]]
+   (assoc db :frames frames)))
+
+(re-frame/reg-event-db
+ ::stop-animation)
+
+(re-frame/reg-event-fx
+ ::frame
+ (fn [{db :db}]
+   (merge
+    {:db (update db :frames next)}
+    (when-let [frame (first (:frames db))]
+      {::redraw-canvas! }))))
 
 ;;;;; FX
 

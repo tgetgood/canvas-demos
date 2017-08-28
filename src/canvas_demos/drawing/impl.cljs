@@ -63,5 +63,8 @@
   (doseq [shape (map (partial invert-coords window) content)]
     (draw* ctx shape)))
 
-#_(defn animate! [ctx window frames]
-  (re-frame/dispatch [:]))
+(defn animate! [ctx frames]
+  (re-frame/dispatch [::events/start-animation frames]))
+
+(defn kill-animation! []
+  (re-frame/dispatch [::events/stop-animation]))
