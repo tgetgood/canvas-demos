@@ -41,9 +41,9 @@
     (let [now (.getTime (js/Date.))
           elapsed (/ (- now @prev) 1000)]
       (when (< 5 elapsed)
+        (.log js/console (str "FPS: " (int (/ @frame-counter elapsed))))
         (reset! frame-counter 0)
-        (reset! prev now)
-        (.log js/console (str "FPS: " (int (/ @frame-counter elapsed))))))))
+        (reset! prev now)))))
 
 
 (defn raf [f]
@@ -52,8 +52,8 @@
 (defonce ^:private animation-frames (atom nil))
 
 (defn- animate* []
+  (count-frame)
   (let [[frame & more] @animation-frames]
-    (count-frame)
     (when frame
       (draw! frame)
       (swap! animation-frames rest)
