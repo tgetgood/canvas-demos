@@ -20,7 +20,7 @@ onscreen.
 
 To play an animation, pass a seq of frames to
 `canvas-demos.drawing/animate!`. Frames get drawn on
-document.requestAnimationFrame. There's currently no frame dropping or other
+window.requestAnimationFrame. There's currently no frame dropping or other
 fancy features.
 
 ## Production Build

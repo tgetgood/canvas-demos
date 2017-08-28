@@ -10,7 +10,7 @@
 
 (defn ^:export mount-root []
   (canvas/fullscreen-canvas!)
-  (drawing/draw! drawing/drawing))
+  (drawing/draw! (canvas/context (canvas/canvas-elem)) drawing/drawing))
 
 (defn ^:export init []
   (dev-setup)
