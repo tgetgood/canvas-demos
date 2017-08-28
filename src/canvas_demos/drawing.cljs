@@ -19,14 +19,25 @@
     :p [(+ x 140) (+ y 100)]
     :q [(+ x 70) (+ y 100 70)]}])
 
+(defn rc []
+  (str "rgb("
+       (rand-int 255) "," (rand-int 255) "," (rand-int 255)
+       ")"))
 
-(defn cfn [x]
-   [{:type :circle
-     :c [x 400]
-     :r 300
-     :style {:stroke-style (str "#" x)}}])
+(defn cfn [x y r]
+  (lazy-seq
+   (cons
+    [{:type :circle
+      :c [x y]
+      :r r
+      :style {:stroke-style (rc)
+              :line-width 10}}]
+    (cfn (+ x (- 15 (rand-int 30)))
+         (+ y (- 15 (rand-int 30)))
+         (max 0 (+ r (- 5 (rand-int 10))))))))
 
-(def c-seq (map cfn (range)))
+(defn c-seq []
+  (cfn (rand-int 1000) (rand-int 1000) (rand-int 100)))
 
 (def drawing
   (concat
@@ -68,3 +79,8 @@
 (def draw! impl/draw!)
 (def animate! impl/animate!)
 (def stop! impl/kill-animation!)
+
+
+(defn go-circles! []
+  (.log js/console "Run (stop!) to kill animation.")
+  (animate! (apply map concat (take 200 (repeatedly c-seq)))))
