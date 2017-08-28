@@ -1,7 +1,5 @@
 # canvas-demos
 
-A [re-frame](https://github.com/Day8/re-frame) application designed to ... well, that part is up to you.
-
 ## Development Mode
 
 ### Run application:
@@ -15,12 +13,23 @@ Figwheel will automatically push cljs changes to the browser.
 
 Wait a bit, then browse to [http://localhost:3449](http://localhost:3449).
 
+## Play
+
+Change the data in `canvas-demos.drawing/drawing` and see the pictures change
+onscreen.
+
+To play an animation, pass a seq of frames to
+`canvas-demos.drawing/animate!`. Frames get drawn on
+document.requestAnimationFrame. There's currently no frame dropping or other
+fancy features.
+
 ## Production Build
 
+This is a series of proof of concepts. Don't run it in production.
 
-To compile clojurescript to javascript:
+## License
 
-```
-lein clean
-lein cljsbuild once min
-```
+Copyright © 2017 Thomas Getgood
+
+Distributed under the Eclipse Public License either version 1.0 or (at your
+option) any later version.
