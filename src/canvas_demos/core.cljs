@@ -1,6 +1,7 @@
 (ns canvas-demos.core
   (:require [canvas-demos.canvas :as canvas]
-            [canvas-demos.drawing :as drawing]))
+            [canvas-demos.drawing :as drawing]
+            [canvas-demos.examples.ex1 :as ex1]))
 
 
 (defn dev-setup []
@@ -10,7 +11,7 @@
 
 (defn ^:export mount-root []
   (canvas/fullscreen-canvas!)
-  (drawing/draw! (canvas/context (canvas/canvas-elem)) drawing/drawing))
+  (drawing/draw! ex1/picture))
 
 (defn ^:export init []
   (dev-setup)

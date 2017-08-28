@@ -1,86 +1,67 @@
 (ns canvas-demos.drawing
-  (:require [canvas-demos.canvas :as canvas]
-            [canvas-demos.drawing.impl :as impl]))
+  (:require [canvas-demos.canvas :as canvas]))
 
-(defn house [[x y :as p]]
-  [{:type :rectangle
-    :style {:line-width 5
-            :stroke-style "purple"
-            :fill "red"}
-    :p p
-    :w 140
-    :h 100}
+(defprotocol Drawable
+  (draw [this ctx]))
 
-   {:type :line
-    :p [x (+ 100 y)]
-    :q [(+ x 70) (+ y 100 70)]}
+(extend-protocol Drawable
+  default
+  (draw [this _]
+    (.error js/console (str "I don't know how to draw a " (type this))))
 
-   {:type :line
-    :p [(+ x 140) (+ y 100)]
-    :q [(+ x 70) (+ y 100 70)]}])
+  nil
+  (draw [_ _]
+    (.error js/console "Can't draw a nil."))
 
-(defn rc []
-  (str "rgb("
-       (rand-int 255) "," (rand-int 255) "," (rand-int 255)
-       ")"))
+  ;; HACK: Treat vectors as drawings. How hacky is this really?
+  cljs.core/PersistentVector
+  (draw [this ctx]
+    (doseq [s this]
+      (draw s ctx))))
 
-(defn cfn [x y r]
-  (lazy-seq
-   (cons
-    [{:type :circle
-      :c [x y]
-      :r r
-      :style {:stroke-style (rc)
-              :line-width 10}}]
-    (cfn (+ x (- 15 (rand-int 30)))
-         (+ y (- 15 (rand-int 30)))
-         (max 0 (+ r (- 5 (rand-int 10))))))))
+;;;;; Drawing
 
-(defn c-seq []
-  (cfn (rand-int 1000) (rand-int 1000) (rand-int 100)))
+(defn draw! [content]
+  (let [[_ h] (canvas/canvas-container-dimensions)
+        ctx   (canvas/context (canvas/canvas-elem))]
+    (canvas/clear ctx)
+    ;; Use a fixed Affine tx to normalise coordinates.
+    ;; REVIEW: Does resetting this on each frame hurt performance?
+    (canvas/atx ctx 1 0 0 -1 0 h)
+    (draw content ctx)))
 
-(def drawing
-  (concat
-   (mapcat house [[100 100] [300 100] [700 400]])
+;;;;; Animation
 
-   [{:type :circle
-     :c [500 500]
-     :r 321}
+;;; FPS calc
 
-    {:type :circle
-     :c [0 0]
-     :r 225
-     :style {:fill "purple"
-             :line-width 15}}
-
-    {:type :rectangle
-     :p [1000 1000]
-     :w 230
-     :h 45}
-
-    {:type :line
-     :style {:stroke-style "red"
-             :line-width 5}
-     :p [1000 1000]
-     :q [1230 1045]}
-
-    {:type :line
-     :style {:stroke-style "red"
-             :line-width 5}
-     :p [1000 1000]
-     :q [1230 1000]}
-
-    {:type :line
-     :p [0 0]
-     :q [1000 1000]}]))
-
-;;;;; Outside API
-
-(def draw! impl/draw!)
-(def animate! impl/animate!)
-(def stop! impl/kill-animation!)
+(let [frame-counter (atom 0)
+      prev (atom (.getTime (js/Date.)))]
+  (defn count-frame []
+    (swap! frame-counter inc)
+    (let [now (.getTime (js/Date.))
+          elapsed (/ (- now @prev) 1000)]
+      (when (< 5 elapsed)
+        (reset! frame-counter 0)
+        (reset! prev now)
+        (.log js/console (str "FPS: " (int (/ @frame-counter elapsed))))))))
 
 
-(defn go-circles! []
-  (.log js/console "Run (stop!) to kill animation.")
-  (animate! (apply map concat (take 200 (repeatedly c-seq)))))
+(defn raf [f]
+  (.requestAnimationFrame js/window f))
+
+(defonce ^:private animation-frames (atom nil))
+
+(defn- animate* []
+  (let [[frame & more] @animation-frames]
+    (count-frame)
+    (when frame
+      (draw! frame)
+      (swap! animation-frames rest)
+      (raf #(animate*)))))
+
+(defn animate! [frames]
+  (reset! animation-frames frames)
+  (animate*))
+
+(defn stop-animation! []
+  (reset! animation-frames nil))
