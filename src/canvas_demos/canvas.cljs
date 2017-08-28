@@ -13,6 +13,9 @@
 ;; div at runtime.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn canvas-elem []
+  (.getElementById js/document "canvas"))
+
 (defn canvas-container []
   (.getElementById js/document "canvas-container"))
 
@@ -27,6 +30,9 @@
 (defn canvas-container-offset []
   (let [c (canvas-container)]
     [(.-offsetLeft c) (.-offsetTop c)]))
+
+(defn fullscreen-canvas! []
+  (set-canvas-size! (canvas-elem) (canvas-container-dimensions)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Canvas Wrapper

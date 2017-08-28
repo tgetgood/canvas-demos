@@ -1,6 +1,11 @@
 (ns canvas-demos.drawing.impl
-  (:require [canvas-demos.canvas :as canvas]
-            [canvas-demos.window :as window]))
+  (:require [canvas-demos.canvas :as canvas]))
+
+(defn invert
+  "Converts normal plane coordinates (origin in the bottom left) to standard
+  computer graphics coordinates (origin in the top left)"
+  [[x y] h]
+  [x (- h y)])
 
 ;; TODO: This custom coordinate inversion for each shape is a hack. Really we
 ;; should have a vector type which can be inverted, define shapes in terms of
@@ -8,25 +13,25 @@
 (defmulti invert-coords (fn [w t] (:type t)))
 
 (defmethod invert-coords :default
-  [w r]
+  [_ r]
   (.error js/console (str "I can't invert a " (:type r)))
   r)
 
 (defmethod invert-coords :rectangle
-  [w r]
+  [wh r]
   (-> r
-      (update :p window/invert w)
+      (update :p invert wh)
       (update :h -)))
 
 (defmethod invert-coords :line
-  [w l]
+  [h l]
   (-> l
-      (update :p window/invert w)
-      (update :q window/invert w)))
+      (update :p invert h)
+      (update :q invert h)))
 
 (defmethod invert-coords :circle
-  [w c]
-  (update c :c window/invert w))
+  [h c]
+  (update c :c invert h))
 
 ;;;;; Drawing Logic
 
@@ -58,13 +63,8 @@
 
 ;;;;; Entry
 
-(defn draw! [ctx window content]
-  (canvas/clear ctx)
-  (doseq [shape (map (partial invert-coords window) content)]
-    (draw* ctx shape)))
-
-(defn animate! [ctx frames]
-  (re-frame/dispatch [::events/start-animation frames]))
-
-(defn kill-animation! []
-  (re-frame/dispatch [::events/stop-animation]))
+(defn draw! [ctx content]
+  (let [[_ h] (canvas/canvas-container-dimensions)]
+    (canvas/clear ctx)
+    (doseq [shape (map (partial invert-coords h) content)]
+      (draw* ctx shape))))

@@ -1,23 +1,17 @@
 (ns canvas-demos.core
-  (:require [reagent.core :as reagent]
-            [re-frame.core :as re-frame]
-            [canvas-demos.events :as events]
-            [canvas-demos.subs]
-            [canvas-demos.views :as views]
-            [canvas-demos.config :as config]))
+  (:require [canvas-demos.canvas :as canvas]
+            [canvas-demos.drawing :as drawing]))
 
 
 (defn dev-setup []
-  (when config/debug?
+  (when goog.DEBUG
     (enable-console-print!)
     (println "dev mode")))
 
 (defn ^:export mount-root []
-  (re-frame/clear-subscription-cache!)
-  (reagent/render [views/main-panel]
-                  (.getElementById js/document "app")))
+  (canvas/fullscreen-canvas!)
+  (drawing/draw! drawing/drawing))
 
 (defn ^:export init []
-  (re-frame/dispatch-sync [::events/initialize-db])
   (dev-setup)
   (mount-root))
