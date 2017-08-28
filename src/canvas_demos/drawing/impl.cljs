@@ -61,10 +61,31 @@
   [ctx {:keys [style p w h]}]
   (canvas/rectangle ctx style p (mapv + p [w 0] [0 h])))
 
-;;;;; Entry
+;;;;; Drawing
 
 (defn draw! [ctx content]
   (let [[_ h] (canvas/canvas-container-dimensions)]
     (canvas/clear ctx)
     (doseq [shape (map (partial invert-coords h) content)]
       (draw* ctx shape))))
+
+;;;;; Animation
+
+(defn raf [f]
+  (.requestAnimationFrame js/window f))
+
+(def ^:private animation-frames (atom nil))
+
+(defn- animate* [ctx]
+  (let [[frame & more] @animation-frames]
+    (when frame
+      (draw! ctx frame)
+      (swap! animation-frames rest)
+      (raf #(animate* ctx)))))
+
+(defn animate! [frames]
+  (reset! animation-frames frames)
+  (animate* (canvas/context (canvas/canvas-elem))))
+
+(defn kill-animation! []
+  (reset! animation-frames nil))
