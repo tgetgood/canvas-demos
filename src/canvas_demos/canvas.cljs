@@ -112,4 +112,4 @@
 
 (defn context [elem]
   (let [ctx (.getContext elem "2d")]
-      (Canvas. elem ctx)))
+    (Canvas. elem ctx)))

@@ -62,24 +62,24 @@
   (Drawing. (into [] shapes)))
 
 (defn line
-  ([m]
-   (map->Line m))
+  ([{:keys [style p q]}]
+   (line style p q))
   ([p q]
    (line {} p q))
   ([style p q]
    (Line. style p q)))
 
 (defn rectangle
-  ([m]
-   (map->Rectangle m))
+  ([{:keys [style p w h]}]
+   (rectangle style p w h))
   ([p w h]
    (rectangle {} p w h))
   ([style p w h]
    (Rectangle. style p w h)))
 
 (defn circle
-  ([m]
-   (map->Circle m))
+  ([{:keys [style c r]}]
+   (circle style c r))
   ([c r]
    (circle {}  c r))
   ([style c r]

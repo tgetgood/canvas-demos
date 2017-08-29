@@ -1,6 +1,6 @@
 (ns canvas-demos.examples.ex1
   "Demo of declarative drawing and composition"
-  (:require [canvas-demos.shapes.base :as base
+  (:require [canvas-demos.shapes.projective :as base
              :refer [line circle rectangle]]))
 
 (defn house [[x y :as p]]
@@ -30,6 +30,8 @@
           (rectangle {:p [1000 1000]
                       :w 230
                       :h 45})
+
+          (rectangle {:fill "pink"} [742 614] 10 10)
 
           (line {:style {:stroke-style "blue"
                          :line-width 5}

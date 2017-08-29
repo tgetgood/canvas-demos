@@ -1,5 +1,13 @@
 # canvas-demos
 
+## Experiments
+
+Simple declarative and composable drawing and animation.
+
+Use lazy seqs to render or animate infinite data streams.
+
+Pan and zoom of the canvas as a window into the cartesian plane as a whole.
+
 ## Development Mode
 
 ### Run application:
@@ -23,9 +31,9 @@ To play an animation, pass a seq of frames to
 window.requestAnimationFrame. There's currently no frame dropping or other
 fancy features.
 
-## Production Build
+## References
 
-This is a series of proof of concepts. Don't run it in production.
+[Example Mandlebrot viewer](https://github.com/ztellman/penumbra/blob/master/test/example/gpgpu/mandelbrot.clj)
 
 ## License
 
