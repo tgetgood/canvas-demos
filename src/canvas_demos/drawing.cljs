@@ -1,5 +1,11 @@
 (ns canvas-demos.drawing
-  (:require [canvas-demos.canvas :as canvas]))
+  (:refer-clojure :exclude [val])
+  (:require [canvas-demos.canvas :as canvas]
+            [clojure.walk :as walk]))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Protocols
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defprotocol Drawable
   (draw [this ctx]))
@@ -13,24 +19,89 @@
   (draw [_ _]
     (.error js/console "Can't draw a nil."))
 
-  ;; HACK: Treat vectors as drawings. How hacky is this really?
-  cljs.core/PersistentVector
+  PersistentVector
+  (draw [this ctx]
+    (doseq [s this]
+      (draw s ctx)))
+
+  LazySeq
+  (draw [this ctx]
+    (doseq [s this]
+      (draw s ctx)))
+
+  List
   (draw [this ctx]
     (doseq [s this]
       (draw s ctx))))
 
-;;;;; Drawing
+(defprotocol Valuable
+  (val [this]))
 
-(defn draw! [content]
-  (let [[_ h] (canvas/canvas-container-dimensions)
-        ctx   (canvas/context (canvas/canvas-elem))]
+(extend-protocol Valuable
+  default
+  (val [this] this))
+
+(defprotocol Projectable
+  (project [this window]))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Projection Types
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defrecord Vector [x y]
+  Projectable
+  (project [this {z :zoom [ox oy] :offset}]
+    (Vector. (* z (+ ox x)) (* z (+ oy y))))
+
+  Valuable
+  (val [_] [x y]))
+
+(defrecord Scalar [s]
+  Projectable
+  (project [_ {z :zoom}]
+    (Scalar. (* z s)))
+
+  Valuable
+  (val [_] s))
+
+(defn vec2
+  ([[x y]] (vec2 x y))
+  ([x y] (Vector. x y)))
+
+(defn scalar [s]
+  (Scalar. s))
+
+(defn project-all [picture window]
+  (walk/prewalk
+   (fn [o]
+     (if (satisfies? Projectable o)
+       (project o window)
+       o))
+   picture))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Main Draw
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn draw!
+  "Walks content recursively and draws each shape therein in a preorder
+  traversal order. Later draws occlude earlier draws."
+  [content & [project?]]
+  (let [[_ h]        (canvas/canvas-container-dimensions)
+        ctx          (canvas/context (canvas/canvas-elem))
+        window       {:zoom .5 :offset [747 619]}]
     (canvas/clear ctx)
     ;; Use a fixed Affine tx to normalise coordinates.
     ;; REVIEW: Does resetting this on each frame hurt performance?
     (canvas/atx ctx 1 0 0 -1 0 h)
-    (draw content ctx)))
+    (draw (if project?
+            (project-all content window)
+            content)
+          ctx)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Animation
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; FPS calc
 
@@ -45,6 +116,7 @@
         (reset! frame-counter 0)
         (reset! prev now)))))
 
+;;;;; Actual animation
 
 (defn raf [f]
   (.requestAnimationFrame js/window f))

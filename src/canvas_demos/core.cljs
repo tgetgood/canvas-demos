@@ -1,9 +1,7 @@
 (ns canvas-demos.core
   (:require [canvas-demos.canvas :as canvas]
             [canvas-demos.drawing :as drawing]
-            [canvas-demos.examples.ex1 :as ex1]
-            [canvas-demos.shapes.projective :as projective]))
-
+            [canvas-demos.examples.ex1 :as ex1]))
 
 (defn dev-setup []
   (when goog.DEBUG
@@ -12,7 +10,8 @@
 
 (defn ^:export mount-root []
   (canvas/fullscreen-canvas!)
-  (projective/projected-draw! ex1/picture))
+  (drawing/stop-animation!)
+  (ex1/draw!))
 
 (defn ^:export init []
   (dev-setup)
