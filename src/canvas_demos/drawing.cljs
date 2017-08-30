@@ -1,6 +1,7 @@
 (ns canvas-demos.drawing
   (:refer-clojure :exclude [val])
   (:require [canvas-demos.canvas :as canvas]
+            [canvas-demos.events :as events]
             [clojure.walk :as walk]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -51,7 +52,7 @@
 (defrecord Vector [x y]
   Projectable
   (project [this {z :zoom [ox oy] :offset}]
-    (Vector. (* z (+ ox x)) (* z (+ oy y))))
+    (Vector. (+ ox (* z x)) (+ oy (* z y))))
 
   Valuable
   (val [_] [x y]))
@@ -89,7 +90,7 @@
   [content & [project?]]
   (let [[_ h]        (canvas/canvas-container-dimensions)
         ctx          (canvas/context (canvas/canvas-elem))
-        window       {:zoom .5 :offset [747 619]}]
+        window       @events/window]
     (canvas/clear ctx)
     ;; Use a fixed Affine tx to normalise coordinates.
     ;; REVIEW: Does resetting this on each frame hurt performance?
