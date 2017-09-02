@@ -2,7 +2,8 @@
   (:require [canvas-demos.canvas :as canvas]
             [canvas-demos.drawing :as drawing]
             [canvas-demos.events :as events]
-            [canvas-demos.examples.ex1 :as ex1]))
+            [canvas-demos.examples.ex1 :as ex1]
+            [canvas-demos.examples.grid :as grid]))
 
 (defn dev-setup []
   (when goog.DEBUG
@@ -11,7 +12,7 @@
 
 (def main
   "The thing you're currently working on"
-  ex1/draw!)
+  grid/draw!)
 
 (defn ^:export mount-root []
   ;; Resize canvas

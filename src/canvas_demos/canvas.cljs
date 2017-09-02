@@ -2,7 +2,8 @@
   "Wrapper around HTML Canvas elements with a stateless API. All stateful canvas
   setters are replaced by a style map. As compatible with manual canvas
   manipulation as manual canvas manipulation is with itself."
-  (:require [clojure.string :as string])
+  (:require [clojure.string :as string]
+            [canvas-demos.events :as events])
   (:require-macros [canvas-demos.canvas :refer [with-style with-stroke]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -32,7 +33,9 @@
     [(.-offsetLeft c) (.-offsetTop c)]))
 
 (defn fullscreen-canvas! []
-  (set-canvas-size! (canvas-elem) (canvas-container-dimensions)))
+  (let [[w h :as dim] (canvas-container-dimensions)]
+    (set-canvas-size! (canvas-elem) dim)
+    (swap! events/window assoc :width w :height h)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Canvas Wrapper

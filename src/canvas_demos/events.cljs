@@ -1,8 +1,8 @@
 (ns canvas-demos.events
-  (:require [canvas-demos.canvas :as canvas]
-            [clojure.string :as string]))
+  (:require [clojure.string :as string]))
 
-(defonce window (atom {:zoom 1 :offset [0 0]}))
+;; TODO: Should eventually have an app store ns.
+(defonce window (atom {:zoom 1 :offset [0 0] :width 0 :height 0}))
 
 (def ^:private drag-state (atom nil))
 
@@ -19,7 +19,7 @@
   "Returns Inverted pixel coordinates (origin in the lower left) of the event
   e."
   [e]
-  (let [[_ h] (canvas/canvas-container-dimensions)]
+  (let [h (:height @window)]
     [(js/parseInt (.-x e)) (- h (js/parseInt (.-y e)))]))
 
 (defn normalise-zoom [dz]
