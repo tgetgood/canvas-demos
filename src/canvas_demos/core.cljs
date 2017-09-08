@@ -12,7 +12,7 @@
 
 (def main
   "The thing you're currently working on"
-  grid/draw!)
+  ex1/draw!)
 
 (defn ^:export mount-root []
   ;; Resize canvas
