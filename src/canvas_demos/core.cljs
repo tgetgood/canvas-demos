@@ -2,18 +2,20 @@
   (:require [canvas-demos.canvas :as canvas]
             [canvas-demos.drawing :as drawing]
             [canvas-demos.events :as events]
-            [canvas-demos.examples.ex3 :as ex3]))
+            canvas-demos.examples
+            canvas-demos.examples.ex1))
 
 (defn dev-setup []
   (when goog.DEBUG
     (enable-console-print!)
     (println "dev mode")))
 
-(def main
-  "The thing you're currently working on"
-  ex3/draw!)
+(defonce  main
+  ;; "The thing you're currently working on"
+  canvas-demos.examples.ex1/draw!)
 
-(defn ^:export mount-root []
+(defn reset-app!
+  [f]
   ;; Resize canvas
   (canvas/fullscreen-canvas!)
 
@@ -27,8 +29,12 @@
 
   ;; Redraw on window change
   (remove-watch events/window :main)
-  (add-watch events/window :main main)
-  (main))
+  (add-watch events/window :main f)
+  (f))
+
+(defn ^:export mount-root []
+  (when (fn? main)
+    (reset-app! main)))
 
 (defn ^:export init []
   (dev-setup)
