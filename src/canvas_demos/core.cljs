@@ -2,8 +2,7 @@
   (:require [canvas-demos.canvas :as canvas]
             [canvas-demos.drawing :as drawing]
             [canvas-demos.events :as events]
-            [canvas-demos.examples.ex1 :as ex1]
-            [canvas-demos.examples.grid :as grid]))
+            [canvas-demos.examples.ex3 :as ex3]))
 
 (defn dev-setup []
   (when goog.DEBUG
@@ -12,19 +11,19 @@
 
 (def main
   "The thing you're currently working on"
-  grid/draw!)
+  ex3/draw!)
 
 (defn ^:export mount-root []
   ;; Resize canvas
   (canvas/fullscreen-canvas!)
 
+  ;; Stop any playing animations
+  (drawing/stop-animation!)
+
   ;; Reload event handlers
   (let [c (canvas/canvas-elem)]
     (events/remove-handlers! c)
     (events/register-handlers! c))
-
-  ;; Kill any running animations
-  (drawing/stop-animation!)
 
   ;; Redraw on window change
   (remove-watch events/window :main)

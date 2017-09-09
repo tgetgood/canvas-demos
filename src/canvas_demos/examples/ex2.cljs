@@ -23,8 +23,10 @@
   (cfn (rand-int 1000) (rand-int 1000) (rand-int 100)))
 
 (defn start! []
-  (.log js/console "Run (stop!) to kill animation.")
-  (drawing/animate! (partition 100 (apply interleave (take 100 (repeatedly c-seq))))))
+  (when-not (drawing/animating?)
+    (drawing/animate!
+     (partition 100 (apply interleave (take 100 (repeatedly c-seq))))
+     true)))
 
 (defn stop! []
   (drawing/stop-animation!))

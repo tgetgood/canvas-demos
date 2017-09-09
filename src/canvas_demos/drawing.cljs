@@ -124,17 +124,26 @@
 
 (defonce ^:private animation-frames (atom nil))
 
-(defn- animate* []
+(defn- animate* [windowed?]
   (count-frame)
   (let [[frame & more] @animation-frames]
     (when frame
-      (draw! frame)
+      (draw! frame windowed?)
       (swap! animation-frames rest)
-      (raf #(animate*)))))
+      (raf #(animate* windowed?)))))
 
-(defn animate! [frames]
-  (reset! animation-frames frames)
-  (animate*))
+(defn animate! [frames & [windowed?]]
+  ;; HACK: By waiting 2 animation frames, I can make sure that a nil
+  ;; animation-frames atom actually has time to kill all running animations
+  ;; before this resets it.
+  (raf #(raf (fn []
+               (reset! animation-frames frames)
+               (animate* windowed?)))))
 
 (defn stop-animation! []
   (reset! animation-frames nil))
+
+(defn animating?
+  "Returns true if an animation is currently being played."
+  []
+  (boolean @animation-frames))

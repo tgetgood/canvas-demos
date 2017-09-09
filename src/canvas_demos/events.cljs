@@ -30,10 +30,10 @@
 (defn zoom-c [dz ox zx]
   (+ (* dz ox) (* zx (- 1 dz))))
 
-(defn update-zoom [{z :zoom o :offset} p dz]
-  (let [zc p]
-    {:zoom (* z dz)
-     :offset (mapv (partial zoom-c dz) o zc)}))
+(defn update-zoom [{z :zoom o :offset :as w} zc dz]
+  (assoc w
+         :zoom (* z dz)
+         :offset (mapv (partial zoom-c dz) o zc)))
 
 (defn update-offset [{:keys [zoom] :as w} [dx dy]]
   (update w :offset
