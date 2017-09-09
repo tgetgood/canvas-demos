@@ -123,12 +123,12 @@ Wait a bit, then browse to [http://localhost:3449](http://localhost:3449).
 
 ## Play
 
-Set `canvas-demos.core/main` to the `draw!` or `start!` function from any of the
-namespaces in the `canvas-demos.examples` and figwheel will load the new demo as
-soon as it compiles.
+Look in the `canvas-demos.examples` ns for an index of the demos. Run
+`canvas-demos.examples/switch` with the key to the example you want to set it
+running.
 
-Play around with the code defining the picture to see how the drawing works, add
-new types of shapes, or anything you want.
+Now go ahead and play around with the code defining the picture to see how the
+drawing works, add new types of shapes, or anything you want.
 
 ## References
 
