@@ -1,4 +1,4 @@
-(ns canvas-demos.examples.grid
+(ns canvas-demos.examples.mandelbrot
   (:require [canvas-demos.drawing :as drawing]
             [canvas-demos.events :as events]
             [canvas-demos.shapes.base :as base]))
@@ -57,15 +57,20 @@
                              (range height)))
                          (range width))
           colours (map iteration-count pixels)
-          arr (js/Uint8ClampedArray. (* 4 height width))]
+          arr (js/Uint8ClampedArray. (* 4 height width))
+          img (js/ImageData. arr width height)]
       (loop [[c & cs] colours
              i 0]
         (when c
-          (aset arr (+ 3 (* i 4)) (mod c 255))
+          (aset (.-data img) (+ 3 (* i 4)) (mod c 255))
           (recur cs (inc i))))
-      (let [img (js/ImageData. arr width height)]
-        (.putImageData (.-ctx ctx) img 0 0)))))
+      (.log js/console img)
+      (.putImageData (.-ctx ctx) img 0 0))))
 
+
+(def tw [-253 -190])
 
 (defn draw! []
+  ;; Don't use this. Very expensive and doesn't do anything.
+  ;; This guy is a tangent and should be cut sooner than later.
   #_(drawing/draw! (Mandlebrot. @events/window)))
