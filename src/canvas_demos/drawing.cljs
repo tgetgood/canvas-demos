@@ -94,7 +94,7 @@
     (canvas/clear ctx)
     ;; Use a fixed Affine tx to normalise coordinates.
     ;; REVIEW: Does resetting this on each frame hurt performance?
-    (canvas/atx ctx 1 0 0 -1 0 h)
+    (canvas/set-affine-tx ctx [1 0 0 -1 0 h])
     (draw (if project?
             (project-all content window)
             content)

@@ -46,7 +46,8 @@
 (defprotocol ICanvas
   ;; TODO: Presumably I should wrap the entire canvas API.
   (clear [this])
-  (atx [this a b c d e f] "Set the current affine tx matrix")
+  (apply-affine-tx [this atx])
+  (set-affine-tx [this atx] "Set the current affine tx matrix")
   (pixel [this style p])
   (line [this style p q])
   (rectangle [this style p q]
@@ -91,7 +92,9 @@
     (let [width (.-clientWidth elem)
           height (.-clientHeight elem)]
       (.clearRect ctx 0 0 width height)))
-  (atx [_ a b c d e f]
+  (apply-affine-tx [_ [a b c d e f]]
+    (.transform ctx a b c d e f))
+  (set-affine-tx [_ [a b c d e f]]
     (.setTransform ctx a b c d e f))
   (pixel [_ style [x y]]
     (with-style ctx style
