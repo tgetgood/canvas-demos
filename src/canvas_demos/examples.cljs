@@ -3,7 +3,8 @@
             [canvas-demos.examples.ex2 :as ex2]
             [canvas-demos.examples.mandelbrot :as mandelbrot]
             [canvas-demos.drawing :as drawing]
-            [canvas-demos.events :as events]))
+            [canvas-demos.events :as events]
+            [canvas-demos.examples.ex3 :as ex3]))
 
 (def ex-map
   "Examples. Note that the draw functions here do not reload properly
@@ -12,6 +13,7 @@
   happens. I don't know why the top level fn won't reload."
   {:ex1 ex1/draw!
    :ex2 ex2/start!
+   :ex3 ex3/draw!
    :mandelbrot mandelbrot/draw!})
 
 (defn switch
