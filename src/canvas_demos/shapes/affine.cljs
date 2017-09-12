@@ -14,7 +14,7 @@
   "Returns matrix corresponding to the inverse affine transform."
   [[a b c d x y]]
   (let [abs (det a b c d)
-        [a' b' c' d'] (map (partial * abs) [d (- b) (- c) a])
+        [a' b' c' d'] (map #(/ % abs) [d (- b) (- c) a])
         x' (- (+ (* a' x) (* c' y)))
         y' (- (+ (* b' x) (* d' y)))]
     [a' b' c' d' x' y']))
