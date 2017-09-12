@@ -20,11 +20,11 @@
   "Sets the current development example to be ex. See ex-map for listing."
   [ex]
   (when-let [f (get ex-map ex)]
-    (set! canvas-demos.core/main f)
-    (canvas-demos.core/reset-app! f)))
+    (reset! canvas-demos.core/main f)
+    (canvas-demos.core/refresh-app! f)))
 
 (defn freeze
   "Makes image currently on screen completely static. It will no longer respond
   to interaction. Code reloading is also disabled."
   []
-  (set! canvas-demos.core/main nil))
+  (reset! canvas-demos.core/main nil))

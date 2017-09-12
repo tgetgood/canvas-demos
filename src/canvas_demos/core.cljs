@@ -12,9 +12,10 @@
 
 (defonce  main
   ;; "The thing you're currently working on"
-  canvas-demos.examples.ex1/draw!)
+  ;; defonce doesn't take a docstring or metadata...
+  (atom canvas-demos.examples.ex1/draw!))
 
-(defn reset-app!
+(defn refresh-app!
   [f]
   ;; Resize canvas
   (canvas/fullscreen-canvas!)
@@ -33,8 +34,8 @@
   (f))
 
 (defn ^:export mount-root []
-  (when (fn? main)
-    (reset-app! main)))
+  (when (fn? @main)
+    (refresh-app! @main)))
 
 (defn ^:export init []
   (dev-setup)
