@@ -16,8 +16,16 @@
 
 (def picture
   [(-> boat
-       (affine/rotate [500 440] 45))
-   (-> boat
+       #_(affine/rotate [500 440] 45))
+   #_(affine/with-origin boat [400 400]
+     (affine/scale 3 2)
+     (affine/rotate 120)
+     (affine/translate 100 -100))
+   (affine/with-origin boat [400 400]
+     (affine/reflect [1 1]))
+   #_(-> boat
+       (affine/scale [500 440] 7 2)
+       (affine/rotate [500 440] 45)
        #_(affine/translate 400 400))])
 
 
