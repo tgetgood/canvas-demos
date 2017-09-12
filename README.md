@@ -103,7 +103,10 @@ This is very much a work in progress. List of weirdness follows:
   with stroke-width 10px and then zoom out, it eventually becomes a disc, no
   matter how large the radius originally was. This means that some style scalars
   actually need to be transformed with the projection logic. Didn't think of
-  that before...
+  that before... I guess that really we need to draw a line between lines and
+  rectangles. One dimensional things don't have width so it can't scale. Strokes
+  with a set width are actually 2D. That means that they should disappear as you
+  zoom out, but lines shouldn't. That's weird.
 
 ## Development Mode
 
