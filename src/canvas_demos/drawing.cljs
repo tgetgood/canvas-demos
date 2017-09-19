@@ -1,7 +1,7 @@
 (ns canvas-demos.drawing
   (:refer-clojure :exclude [val])
   (:require [canvas-demos.canvas :as canvas]
-            [canvas-demos.events :as events]
+            [canvas-demos.db :as db]
             [clojure.walk :as walk]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -90,7 +90,7 @@
   [content & [project?]]
   (let [[_ h]        (canvas/canvas-container-dimensions)
         ctx          (canvas/context (canvas/canvas-elem))
-        window       @events/window]
+        window       @db/window]
     (canvas/clear ctx)
     ;; Use a fixed Affine tx to normalise coordinates.
     ;; REVIEW: Does resetting this on each frame hurt performance?

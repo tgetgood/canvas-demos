@@ -1,9 +1,10 @@
 (ns canvas-demos.core
   (:require [canvas-demos.canvas :as canvas]
+            [canvas-demos.db :as db]
             [canvas-demos.drawing :as drawing]
-            [canvas-demos.events :as events]
+            [canvas-demos.views :as views]
             canvas-demos.examples
-            canvas-demos.examples.ex1))
+            [reagent.core :as reagent]))
 
 (defn dev-setup []
   (when goog.DEBUG
@@ -13,30 +14,36 @@
 (defonce  main
   ;; "The thing you're currently working on"
   ;; defonce doesn't take a docstring or metadata...
-  (atom canvas-demos.examples.ex1/draw!))
+  (atom nil))
+
+(defn watch-resize! []
+  (let [running (atom false)]
+    (set! (.-onresize js/window)
+          (fn []
+            (when (compare-and-set! running false true)
+              (.requestAnimationFrame
+               js/window
+               (fn []
+                 (when (compare-and-set! running true false)
+                   (canvas/fullscreen-canvas!)))))))))
 
 (defn refresh-app!
   [f]
-  ;; Resize canvas
-  (canvas/fullscreen-canvas!)
-
   ;; Stop any playing animations
   (drawing/stop-animation!)
 
-  ;; Reload event handlers
-  (let [c (canvas/canvas-elem)]
-    (events/remove-handlers! c)
-    (events/register-handlers! c))
-
   ;; Redraw on window change
-  (remove-watch events/window :main)
-  (add-watch events/window :main f)
+  (remove-watch db/window :main)
+  (add-watch db/window :main f)
   (f))
 
 (defn ^:export mount-root []
-  (when (fn? @main)
-    (refresh-app! @main)))
+  (when @main
+    (refresh-app! @main))
+  (reagent/render [views/canvas]
+                  (.getElementById js/document "app")))
 
 (defn ^:export init []
   (dev-setup)
+  (watch-resize!)
   (mount-root))

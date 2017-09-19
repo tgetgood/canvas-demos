@@ -1,7 +1,6 @@
 (ns canvas-demos.examples.mandelbrot
-  (:require [canvas-demos.drawing :as drawing]
-            [canvas-demos.events :as events]
-            [canvas-demos.shapes.base :as base]))
+  (:require [canvas-demos.db :as db]
+            [canvas-demos.drawing :as drawing]))
 
 ;;;;; Complex mult
 
@@ -78,4 +77,4 @@
 (defn draw! []
   ;; Don't use this. Very expensive and doesn't do anything.
   ;; This guy is a tangent and should be cut sooner than later.
-  (drawing/draw! (Mandlebrot. @events/window)))
+  (drawing/draw! (Mandlebrot. @db/window)))

@@ -1,6 +1,7 @@
 (defproject canvas-demos "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.9.0-alpha17"]
-                 [org.clojure/clojurescript "1.9.908"]]
+                 [org.clojure/clojurescript "1.9.908"]
+                 [reagent "0.7.0"]]
 
   :plugins [[lein-cljsbuild "1.1.6" :exclusions [[org.clojure/clojure]]]]
 

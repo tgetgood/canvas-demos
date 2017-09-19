@@ -3,7 +3,7 @@
   setters are replaced by a style map. As compatible with manual canvas
   manipulation as manual canvas manipulation is with itself."
   (:require [clojure.string :as string]
-            [canvas-demos.events :as events])
+            [canvas-demos.db :as db])
   (:require-macros [canvas-demos.canvas :refer [with-style with-stroke]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -21,8 +21,8 @@
   (.getElementById js/document "canvas-container"))
 
 (defn canvas-container-dimensions []
-  [(.-clientWidth (canvas-container))
-   (.-clientHeight (canvas-container))])
+  (let [cc (canvas-container)]
+    [(.-clientWidth cc) (.-clientHeight cc)]))
 
 (defn set-canvas-size! [canvas [width height]]
   (set! (.-width canvas) width)
@@ -35,7 +35,7 @@
 (defn fullscreen-canvas! []
   (let [[w h :as dim] (canvas-container-dimensions)]
     (set-canvas-size! (canvas-elem) dim)
-    (swap! events/window assoc :width w :height h)))
+    (swap! db/window assoc :width w :height h)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Canvas Wrapper
