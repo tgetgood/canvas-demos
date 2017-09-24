@@ -1,5 +1,6 @@
 (defproject canvas-demos "0.1.0-SNAPSHOT"
-  :dependencies [[org.clojure/clojure "1.9.0-alpha17"]
+  :dependencies [[fipp "0.6.10"]
+                 [org.clojure/clojure "1.9.0-alpha17"]
                  [org.clojure/clojurescript "1.9.908"]
                  [reagent "0.7.0"]]
 

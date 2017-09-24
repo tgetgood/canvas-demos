@@ -40,7 +40,7 @@
 (defn ^:export mount-root []
   (when @main
     (refresh-app! @main))
-  (reagent/render [views/canvas]
+  (reagent/render [views/main]
                   (.getElementById js/document "app")))
 
 (defn ^:export init []

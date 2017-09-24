@@ -14,7 +14,7 @@
    (line [(+ x 140) (+ y 100)] [(+ x 70) (+ y 100 70)])])
 
 (def picture
-  (concat
+  '(concat
    (mapcat house [[100 100] [300 100] [700 400] [1000 1000]])
 
    [(circle {:c [500 500]
