@@ -30,7 +30,7 @@
    [:div {:style {:float "left"
                   :width "30%"
                   :height "100%"}}
-    [editor @db/text]]
+    [editor "adasf"]]
    [:div {:style {:float "right"
                   :height "100%"
                   :width "70%"}}
