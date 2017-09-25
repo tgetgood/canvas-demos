@@ -4,6 +4,7 @@
             [canvas-demos.examples.mandelbrot :as mandelbrot]
             [canvas-demos.drawing :as drawing]
             [canvas-demos.events :as events]
+            canvas-demos.core
             [canvas-demos.examples.ex3 :as ex3]))
 
 (def ex-map

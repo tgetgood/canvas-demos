@@ -3,7 +3,6 @@
             [canvas-demos.db :as db]
             [canvas-demos.drawing :as drawing]
             [canvas-demos.views :as views]
-            canvas-demos.examples
             [reagent.core :as reagent]))
 
 (defn dev-setup []
