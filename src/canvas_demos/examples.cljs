@@ -12,7 +12,7 @@
   themselves. These draw functions should call drawing/draw! on another var
   which contains the data. When that var gets modified. the correct thing
   happens. I don't know why the top level fn won't reload."
-  {:ex1 ex1/draw!
+  {;:ex1 ex1/draw!
    :ex2 ex2/start!
    :ex3 ex3/draw!
    :mandelbrot mandelbrot/draw!})

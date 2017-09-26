@@ -1,8 +1,6 @@
 (ns canvas-demos.examples.ex1
   "Demo of declarative drawing and composition"
-  (:require [canvas-demos.db :as db]
-            [canvas-demos.drawing :as drawing]
-            [canvas-demos.shapes.base :as base :refer [circle line rectangle]]))
+  (:require [canvas-demos.shapes.base :as base :refer [circle line rectangle]]))
 
 (defn house [[x y :as p]]
   [(rectangle {:line-width 5
@@ -15,7 +13,7 @@
    (line [(+ x 140) (+ y 100)] [(+ x 70) (+ y 100 70)])])
 
 (def picture
-  '(concat
+  `(concat
    (mapcat house [[100 100] [300 100] [700 400] [1000 1000]])
 
    [(circle {:c [500 500]
@@ -44,9 +42,3 @@
 
     (line {:p [0 0]
            :q [1000 1000]})]))
-
-(swap! db/drawings assoc "ex1" picture)
-
-
-(defn draw! []
-  (drawing/draw! picture true))
