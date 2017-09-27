@@ -95,7 +95,7 @@
     ;; REVIEW: Does resetting this on each frame hurt performance?
     (canvas/set-affine-tx ctx [1 0 0 -1 0 h])
     (draw (if window
-            (project-all content @window)
+            (project-all content window)
             content)
           ctx)))
 
