@@ -17,6 +17,8 @@
 
 (defn watch-resize! []
   (reset! db/client-width (.-innerWidth js/window))
+  (let [[w h :as dim] (canvas/canvas-container-dimensions) ]
+    (swap! db/window assoc :width w :height h))
   (let [running (atom false)]
     (set! (.-onresize js/window)
           (fn []
@@ -26,6 +28,8 @@
                (fn []
                  (when (compare-and-set! running true false)
                    (reset! db/client-width (.-innerWidth js/window))
+                   (let [[w h :as dim] (canvas/canvas-container-dimensions) ]
+                     (swap! db/window assoc :width w :height h))
                    (canvas/fullscreen-canvas!)
                    (when (fn? @main)
                      (@main))))))))))

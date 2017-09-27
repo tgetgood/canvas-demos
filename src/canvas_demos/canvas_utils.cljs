@@ -1,5 +1,4 @@
-(ns canvas-demos.canvas-utils
-  (:require [canvas-demos.db :as db]))
+(ns canvas-demos.canvas-utils)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Canvas Manipulation
@@ -29,5 +28,4 @@
 
 (defn fullscreen-canvas! []
   (let [[w h :as dim] (canvas-container-dimensions)]
-    (set-canvas-size! (canvas-elem) dim)
-    (swap! db/window assoc :width w :height h)))
+    (set-canvas-size! (canvas-elem) dim)))
