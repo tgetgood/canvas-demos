@@ -16,6 +16,7 @@
   (atom nil))
 
 (defn watch-resize! []
+  (reset! db/client-width (.-innerWidth js/window))
   (let [running (atom false)]
     (set! (.-onresize js/window)
           (fn []
@@ -24,7 +25,10 @@
                js/window
                (fn []
                  (when (compare-and-set! running true false)
-                   (canvas/fullscreen-canvas!)))))))))
+                   (reset! db/client-width (.-innerWidth js/window))
+                   (canvas/fullscreen-canvas!)
+                   (when (fn? @main)
+                     (@main))))))))))
 
 (defn refresh-app!
   [f]
@@ -37,6 +41,7 @@
   (f))
 
 (defn ^:export mount-root []
+  (watch-resize!)
   (when @main
     (refresh-app! @main))
   (reagent/render [views/main]
@@ -44,5 +49,4 @@
 
 (defn ^:export init []
   (dev-setup)
-  (watch-resize!)
   (mount-root))

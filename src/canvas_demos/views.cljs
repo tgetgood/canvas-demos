@@ -4,9 +4,6 @@
             [reagent.core :as reagent]
             [canvas-demos.db :as db]))
 
-(defn window-width []
-  (.-innerWidth js/window))
-
 (defn canvas-inner []
   (reagent/create-class
    {:component-did-mount (fn [_]
@@ -39,7 +36,7 @@
   (fn []
     (let [button-width 80
           code-width 400
-          canvas-width (- (window-width) button-width code-width)]
+          canvas-width (- @db/client-width button-width code-width)]
       [:div {:style {:overflow "hidden"
                      :height "100%"}}
        [:div {:style {:height "100%"
@@ -55,5 +52,5 @@
          [image-selector]]]
        [:div {:style {:float "right"
                       :height "100%"
-                      :width "70%"}}
-        [canvas ]]])))
+                      :width canvas-width}}
+        [canvas]]])))
