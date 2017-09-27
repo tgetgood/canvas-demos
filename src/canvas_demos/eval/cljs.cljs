@@ -38,11 +38,6 @@
     (:require [canvas-demos.examples.ex1 :refer [house]]
               [canvas-demos.shapes.base :refer [circle line rectangle]])))
 
-(defn set-current-drawing! [name]
-  (when-let [code (get @drawings name)]
-    (reset! editor-content (with-out-str (fipp/pprint code)))
-    (when-let [shape (eval code)]
-      (reset! canvas shape))))
 
 
 

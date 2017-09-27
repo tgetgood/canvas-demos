@@ -1,5 +1,5 @@
 (ns canvas-demos.core
-  (:require [canvas-demos.canvas :as canvas]
+  (:require [canvas-demos.canvas-utils :as canvas]
             [canvas-demos.db :as db]
             [canvas-demos.drawing :as drawing]
             [canvas-demos.views :as views]

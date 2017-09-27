@@ -1,5 +1,5 @@
 (ns canvas-demos.views
-  (:require [canvas-demos.canvas :as canvas]
+  (:require [canvas-demos.canvas-utils :as canvas]
             [canvas-demos.events :as events]
             [reagent.core :as reagent]
             [canvas-demos.db :as db]))
@@ -31,7 +31,7 @@
   (into [:div]
         (map (fn [name]
                [:button {:on-click (fn [_]
-                                     (db/set-current-drawing! name))}
+                                     #_(db/set-current-drawing! name))}
                 name])
           (keys @db/drawings))))
 

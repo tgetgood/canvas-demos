@@ -1,5 +1,5 @@
 (ns canvas-demos.events
-  (:require [canvas-demos.canvas :as canvas]
+  (:require [canvas-demos.canvas-utils :as canvas]
             [canvas-demos.db :as db :refer [window]]
             [clojure.string :as string]))
 

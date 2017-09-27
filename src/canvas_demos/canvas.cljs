@@ -2,49 +2,18 @@
   "Wrapper around HTML Canvas elements with a stateless API. All stateful canvas
   setters are replaced by a style map. As compatible with manual canvas
   manipulation as manual canvas manipulation is with itself."
-  (:require [clojure.string :as string]
-            [canvas-demos.db :as db])
-  (:require-macros [canvas-demos.canvas :refer [with-style with-stroke]]))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;; Canvas Manipulation
-;;
-;; Best way I could find to dynamically get the correct dimensions of the canvas
-;; element was to put it in a div with 100% height and width and then query that
-;; div at runtime.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn canvas-elem []
-  (.getElementById js/document "canvas"))
-
-(defn canvas-container []
-  (.getElementById js/document "canvas-container"))
-
-(defn canvas-container-dimensions []
-  (let [cc (canvas-container)]
-    [(.-clientWidth cc) (.-clientHeight cc)]))
-
-(defn set-canvas-size! [canvas [width height]]
-  (set! (.-width canvas) width)
-  (set! (.-height canvas) height))
-
-(defn canvas-container-offset []
-  (let [c (canvas-container)]
-    [(.-offsetLeft c) (.-offsetTop c)]))
-
-(defn fullscreen-canvas! []
-  (let [[w h :as dim] (canvas-container-dimensions)]
-    (set-canvas-size! (canvas-elem) dim)
-    (swap! db/window assoc :width w :height h)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;; Canvas Wrapper
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  (:require [clojure.string :as string])
+  (:require-macros [canvas-demos.canvas :refer [with-stroke with-style]]))
 
 ;;;;; Protocol
 
 (defprotocol ICanvas
   ;; TODO: Presumably I should wrap the entire canvas API.
+  ;;
+  ;; Well, that's an interesting question. The canvas API doesn't have circles,
+  ;; but I want a circle. It has rectangles, but I can make rectangles from
+  ;; lines. I am designing a new language whether I like it or not, so let's
+  ;; take that responsibility head on.
   (clear [this])
   (apply-affine-tx [this atx])
   (set-affine-tx [this atx] "Set the current affine tx matrix")
@@ -53,6 +22,8 @@
   (rectangle [this style p q]
     "Rectangle defined by bottom left and top right corners")
   (circle [this style centre radius]))
+
+;;;; Styling Logic
 
 (def style-keys
   [:stroke-style
@@ -78,6 +49,7 @@
   (doseq [[k v] (dissoc style :fill)]
     (when v
       ;;FIXME: Really weird state problems.
+      ;; ???
       (aset ctx (clj->jsm k) v)))
 
   ;; Treat fill specially for convenience
@@ -116,6 +88,8 @@
         (.moveTo ctx (+ r x) y)
         (.arc ctx x y r 0 (* 2 js/Math.PI))))))
 
-(defn context [elem]
+(defn context
+  "Returns a Canvas object wrapping the given HTML canvas dom element."
+  [elem]
   (let [ctx (.getContext elem "2d")]
     (Canvas. elem ctx)))

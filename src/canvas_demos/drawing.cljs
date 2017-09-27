@@ -1,6 +1,7 @@
 (ns canvas-demos.drawing
   (:refer-clojure :exclude [val])
   (:require [canvas-demos.canvas :as canvas]
+            [canvas-demos.canvas-utils :as canvas-utils]
             [canvas-demos.db :as db]
             [clojure.walk :as walk]))
 
@@ -88,8 +89,8 @@
   "Walks content recursively and draws each shape therein in a preorder
   traversal order. Later draws occlude earlier draws."
   [content & [project?]]
-  (let [[_ h]        (canvas/canvas-container-dimensions)
-        ctx          (canvas/context (canvas/canvas-elem))
+  (let [[_ h]        (canvas-utils/canvas-container-dimensions)
+        ctx          (canvas/context (canvas-utils/canvas-elem))
         window       @db/window]
     (canvas/clear ctx)
     ;; Use a fixed Affine tx to normalise coordinates.
