@@ -9,12 +9,15 @@
 (defn canvas-inner []
   (reagent/create-class
    {:component-did-mount (fn [this]
-                           (let [[w h :as dim] (canvas/canvas-container-dimensions) ]
+                           (let [[w h :as dim] (canvas/canvas-container-dimensions)]
                              (swap! db/window assoc :width w :height h))
                            (canvas/fullscreen-canvas!)
                            (let [drawing (:img (reagent/props this))]
                              (drawing/draw! drawing @db/window)))
     :component-did-update (fn [this]
+                            (let [[w h :as dim] (canvas/canvas-container-dimensions)]
+                             (swap! db/window assoc :width w :height h))
+                           (canvas/fullscreen-canvas!)
                             (let [drawing (:img (reagent/props this))]
                              (drawing/draw! drawing @db/window)))
     :reagent-render      (fn [_]
@@ -29,10 +32,12 @@
 (defn image-selector []
   (into [:div]
         (map (fn [name]
-               [:button {:on-click (fn [_]
+               [:button {:style {:width "100%"
+                                 :height "30px"}
+                         :on-click (fn [_]
                                      (db/set-current-drawing! name))}
                 name])
-          (keys @db/drawings))))
+          (keys (:drawings @db/code)))))
 
 (defn main []
   (fn []
@@ -42,7 +47,7 @@
        [:div {:style {:position "absolute"
                       :z-index "10"
                       :float "left"
-                      :width  "5%"
+                      :width  "60px"
                       :height "100%"}}
         [image-selector]]
        [:div {:style {:position "absolute"

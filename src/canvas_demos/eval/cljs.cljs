@@ -24,32 +24,19 @@
 (defn eval [form]
   (cljs/eval (cljs/empty-state)
              form
-             {:ns         eval-ns
-              :source-map true
-              :load load-fn
-              :eval       cljs/js-eval}
-             (fn [{:keys [error value]}]
+             {:eval cljs/js-eval
+              :context :expr}
+             (fn [{:keys [error value] :as result}]
                (when error
-                 (throw (js/Error. error)))
+                 (throw error))
                value)))
-
-(eval
- '(ns canvas-demos.eval
-    (:require [canvas-demos.examples.ex1 :refer [house]]
-              [canvas-demos.shapes.base :refer [circle line rectangle]])))
-
-
-
-
-
 
 (defn s! []
   (cljs/eval (cljs/empty-state)
-             '(+ 1 4)
-             {:ns (find-ns-obj 'canvas-demos.db)
+             '(fn [] 6)
+             {:ns eval-ns
               :source-map true
               :eval cljs/js-eval }
              (fn [{:keys [value error]}]
                (when error
-                 (println error))
-               value)))
+                 (println error)))))
