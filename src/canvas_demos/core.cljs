@@ -3,7 +3,8 @@
             [canvas-demos.db :as db]
             [canvas-demos.drawing :as drawing]
             [canvas-demos.views :as views]
-            [reagent.core :as reagent]))
+            [reagent.core :as reagent]
+            [paren-soup.core :as ps]))
 
 (defn dev-setup []
   (when goog.DEBUG
@@ -51,4 +52,6 @@
 
 (defn ^:export init []
   (dev-setup)
+  (let [ed-elem (js/document.getElementById "editor")]
+    (reset! db/paren-soup (ps/init ed-elem #js {})))
   (mount-root))

@@ -6,7 +6,24 @@ html, body {
 		margin: 0;
 }
 
-#app {
+#main {
 		height: 100%;
 		width: 100%;
 }
+
+#app {
+		float: right;
+		width: 70%;
+		height: 100%;
+}
+
+.paren-soup {
+		float: left;
+		height: 100%;
+		width: 30%;
+}
+
+ .paren-soup .content {
+		height: 100%;
+		overflow: auto !important;
+ }

@@ -21,22 +21,10 @@
                            [:canvas#canvas events/canvas-event-handlers])}))
 
 (defn canvas [drawing]
-  [:div#canvas-container {:style {:height "100%"
-                                  :width "100%"
+  [:div#canvas-container {:style {:height   "100%"
+                                  :width    "100%"
                                   :overflow "hidden"}}
    [canvas-inner {:img drawing}]])
-
-(defn editor []
-  (reagent/create-class
-   {:component-did-mount (fn [this]
-                           (ps/init (reagent/dom-node this) {}))
-    :reagent-render (fn [this]
-                      [:div.paren-soup
-                       [:div.numbers]
-                       [:div.content {:content-editable true
-                                      :on-change js/console.log}
-                        #_(:text (reagent/props this))]])}))
-
 
 (defn image-selector []
   (into [:div]
@@ -48,23 +36,16 @@
 
 (defn main []
   (fn []
-    (let [button-width 80
-          code-width 400
-          canvas-width (- @db/client-width button-width code-width)]
+    (let []
       [:div {:style {:overflow "hidden"
-                     :height "100%"}}
-       [:div {:style {:height "100%"
+                     :height   "100%"}}
+       [:div {:style {:position "absolute"
+                      :z-index "10"
                       :float "left"
-                      :width (+ code-width button-width)}}
-        [:div {:style {:float "left"
-                       :width code-width
-                       :height "100%"}}
-         [editor {:text @db/editor-content}]]
-        [:div {:style {:float "right"
-                       :width button-width
-                       :height "100%"}}
-         [image-selector]]]
-       [:div {:style {:float "right"
+                      :width  "5%"
+                      :height "100%"}}
+        [image-selector]]
+       [:div {:style {:position "absolute"
                       :height "100%"
-                      :width canvas-width}}
+                      :width  "100%"}}
         [canvas @db/canvas]]])))
