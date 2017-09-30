@@ -1,5 +1,5 @@
 (ns canvas-demos.db
-  (:require [canvas-demos.eval.interpreter :as interpreter]
+  (:require [canvas-demos.interpreter :as interpreter]
             [canvas-demos.examples.ex1 :as ex1]
             [cljs.tools.reader :as reader]
             [fipp.clojure :as fipp]

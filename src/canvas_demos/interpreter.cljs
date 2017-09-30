@@ -1,12 +1,22 @@
-(ns canvas-demos.eval.interpreter
+(ns canvas-demos.interpreter
   (:require [canvas-demos.examples.ex1 :as ex1]
-            [canvas-demos.eval.cljs :as cljs-eval]
             [cljs.tools.reader :as reader]
+            [cljs.js :as cljs]
             [clojure.walk :as walk]
             [canvas-demos.shapes.affine :refer [translate]]
             [canvas-demos.shapes.base :as base :refer [circle line rectangle]]))
 
 (def test-fn  '(fn [x] (line [x 100] [1000 1000])))
+
+(defn compile [form]
+  (cljs/eval (cljs/empty-state)
+             form
+             {:eval cljs/js-eval
+              :context :expr}
+             (fn [{:keys [error value] :as result}]
+               (when error
+                 (throw error))
+               value)))
 
 (declare eval)
 
@@ -23,7 +33,7 @@
 (defn eval-fn [form env]
   (let [unbound (syms-in-fn-body form)
         wrapper (cons 'fn (list unbound form))
-        fn-obj  (cljs-eval/eval wrapper)]
+        fn-obj  (compile wrapper)]
     (apply fn-obj (map #(eval % env) unbound))))
 
 (defn builtins []
