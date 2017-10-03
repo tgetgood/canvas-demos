@@ -48,9 +48,8 @@
                       :z-index "10"
                       :float "left"
                       :width  "60px"
-                      :height "100%"}}
+                      :height "auto"}}
         [image-selector]]
-       [:div {:style {:position "absolute"
-                      :height "100%"
+       [:div {:style {:height "100%"
                       :width  "100%"}}
         [canvas @db/canvas]]])))
