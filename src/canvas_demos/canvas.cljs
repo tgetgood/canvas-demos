@@ -30,7 +30,11 @@
    :line-join
    :line-cap
    :miter-limit
-   :line-width])
+   :line-width
+   :line-join ; round, bevel, mitre
+   :line-cap ; round, square, butt
+   :line-dash
+   ])
 
 ;; TODO: Gradients
 ;; TODO: Text
