@@ -11,10 +11,8 @@
 
 (defonce window (reagent/atom {:zoom 1 :offset [0 0] :width 0 :height 0 }))
 
-(defonce current-drawing (reagent/atom "ex1"))
-
 (defonce code
-  (reagent/atom {:selected "ex1"
+  (reagent/atom {:selected "blank"
                  :drawings {"house" ex1/house
                             "ex1"   ex1/picture
                             "blank" '[]}}))

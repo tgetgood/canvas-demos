@@ -1,10 +1,9 @@
 (ns canvas-demos.interpreter
   (:require [canvas-demos.examples.ex1 :as ex1]
-            [cljs.tools.reader :as reader]
+            canvas-demos.shapes.base
+            canvas-demos.shapes.affine
             [cljs.js :as cljs]
-            [clojure.walk :as walk]
-            [canvas-demos.shapes.affine :refer [translate]]
-            [canvas-demos.shapes.base :as base :refer [circle line rectangle]]))
+            [clojure.walk :as walk]))
 
 (def test-fn  '(fn [x] (line [x 100] [1000 1000])))
 
@@ -18,7 +17,7 @@
                  (throw error))
                value)))
 
-(declare eval)
+(declare eval*)
 
 (defn syms-in-fn-body [form]
   (let [syms     (transient #{})
@@ -34,43 +33,53 @@
   (let [unbound (syms-in-fn-body form)
         wrapper (cons 'fn (list unbound form))
         fn-obj  (compile wrapper)]
-    (apply fn-obj (map #(eval % env) unbound))))
+    (apply fn-obj (map (partial eval* env) unbound))))
+
+(defn js->clj*
+  "Special processing for ns objects. I don't know why this is needed."
+  ;; HACK:!!
+  [obj]
+  (try
+    (reduce (fn [acc k] (assoc acc k (aget obj k)))
+            {} (.keys js/Object obj))
+    (catch js/Error e {})))
 
 (defn builtins []
-  (reduce (fn [acc obj]
-            (doseq [k (js/Object.keys obj)]
-              (aset acc k (aget obj k)))
-            acc)
-          #js {}
-          (map find-ns-obj
-            '[cljs.core
-              canvas-demos.shapes.affine
-              canvas-demos.shapes.base
-              canvas-demos.examples.ex1])))
+  (reduce merge
+         (map (comp js->clj* find-ns-obj)
+           '[cljs.core
+             canvas-demos.shapes.affine
+             canvas-demos.shapes.base])))
 
-
-(defn resolve* [sym env]
-  (if-let [impl (aget env (munge (name sym)))]
-    impl
-    (if (= sym 'house)
-      ex1/house
-      (throw (js/Error. (str (name sym) " cannot be resolved"))))))
-
-
-(defn eval [form & [env]]
-  (let [env (or env (builtins))]
+(defn resolve* [sym {:keys [builtins bindings] :as env}]
+  ;; TODO: We're currently obliterating namespaces. That's easy for now, but not
+  ;; good for the long term.
+  (let [n (munge (name sym))]
     (cond
-      (and (list? form) (contains? #{'fn* 'fn} (first form)))
-      (eval-fn form env)
-
-      (list? form)
-      (apply (eval (first form) env) (map #(eval % env) (rest form)))
-
-      (symbol? form)
-      (resolve* form env)
-
-      (vector? form)
-      (mapv eval form)
-
+      (contains? builtins n) (get builtins n)
+      (contains? bindings n) (eval* env (get bindings n))
       :else
-      form)))
+      (throw (js/Error. (str n " cannot be resolved"))))))
+
+
+(defn- eval* [env form]
+  (cond
+    (and (list? form) (contains? #{'fn* 'fn} (first form)))
+    (eval-fn form env)
+
+    (list? form)
+    (apply (eval* env (first form)) (map (partial eval* env) (rest form)))
+
+    (symbol? form)
+    (resolve* form env)
+
+    (vector? form)
+    (mapv (partial eval* env) form)
+
+    :else
+    form))
+
+
+(defn eval [form & [bindings]]
+  (let [env {:builtins (builtins) :bindings (or bindings {"house" ex1/house})}]
+    (eval* env form)))
