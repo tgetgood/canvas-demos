@@ -49,7 +49,7 @@
       (try
         (when-let [form (reader/read-string (:text current))]
           (swap! drawings assoc @selected form))
-        (catch js/Error e (println e))))))
+        (catch js/Error e nil)))))
 
 (defn update-editor-content! [content]
   (ps/edit-and-refresh! @paren-soup
