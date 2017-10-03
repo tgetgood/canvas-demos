@@ -1,6 +1,5 @@
 (ns canvas-demos.interpreter
-  (:require [canvas-demos.examples.ex1 :as ex1]
-            canvas-demos.shapes.base
+  (:require canvas-demos.shapes.base
             canvas-demos.shapes.affine
             [cljs.js :as cljs]
             [clojure.walk :as walk]))
@@ -81,5 +80,5 @@
 
 
 (defn eval [form & [bindings]]
-  (let [env {:builtins (builtins) :bindings (or bindings {"house" ex1/house})}]
+  (let [env {:builtins (builtins) :bindings (or bindings {})}]
     (eval* env form)))

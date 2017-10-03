@@ -3,13 +3,13 @@
   (:require [canvas-demos.shapes.base :as base :refer [circle line rectangle]]))
 
 (def house
-  '[(rectangle {:line-width 5
+  '[(rectangle {:line-width 15
                :stroke-style "purple"
-               :fill "red"}
+                :fill "pink"}
                [0 0] 140 100)
-    (line [0 100] [70 (+ 100 70)])
+    (line {:line-width 10} [-7 107] [70 (+ 100 70)])
 
-    (line [140 100] [70 (+ 100 70)])])
+    (line {:line-width 10} [147 107] [70 (+ 100 70)])])
 
 
 (def picture

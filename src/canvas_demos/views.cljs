@@ -37,7 +37,7 @@
                          :on-click (fn [_]
                                      (db/set-current-drawing! name))}
                 name])
-          (keys (:drawings @db/code)))))
+          (keys @db/drawings))))
 
 (defn main []
   (fn []
