@@ -25,40 +25,70 @@
 
 ;;;; Styling Logic
 
-(def style-keys
-  [:stroke-style
-   :line-join
-   :line-cap
-   :miter-limit
-   :line-width
-   :line-join ; round, bevel, mitre
-   :line-cap ; round, square, butt
-   :line-dash
-   ])
+(def style-abbrevs
+  (-> (make-hierarchy)
+    (derive :stroke      ::stroke)
+    (derive :stoke-style ::stroke)
+    (derive :fill        ::fill)
+    (derive :fill-style  ::fill)))
 
-;; TODO: Gradients
+;; TODO: Shadows
 ;; TODO: Text
+;; TODO: ImageData (pixel manipulation)
 
-(defn clj->jsm [k]
+(defn key-tx [k]
   (let [bits (string/split (name k) #"-")]
     (apply str (first bits) (map string/capitalize (rest bits)))))
 
-(defn- save-style [ctx]
-  (into {:fill (.-fillStyle ctx)}
-        (map (fn [k]
-               [k (aget ctx (clj->jsm k))])
-          style-keys)))
+(defn- val-tx [v]
+  (if (keyword? v)
+    (name v)
+    v))
+
+(defmulti set-style* (fn [ctx k v] k) :hierarchy #'style-abbrevs)
+
+
+(defmethod set-style* :default
+  [ctx k v]
+  (aset ctx (key-tx k) (val-tx v)))
+
+(defmethod set-style* :line-dash
+  [ctx k v]
+  (.setLineDash ctx (clj->js v)))
+
+(defn linear? [spec]
+  (and (= (type spec) PersistentVector) (= 2 (count spec))))
+
+(defn linear-gradient [ctx [x0 y0] [x1 y1]]
+  (.createLinearGradient ctx x0 y0 x1 y1))
+
+(defn radial-gradient [ctx {[x0 y0] :c r0 :r} {[x1 y1] :c r1 :r}]
+  (.createRadialGradient ctx x0 y0 r0 x1 y1 r1))
+
+(defn- create-gradient [ctx {:keys [from to stops]}]
+  (let [gradient (if (linear? from)
+                   (linear-gradient ctx from to)
+                   (radial-gradient ctx from to))]
+    (doseq [[k v] stops]
+      (.addColorStop gradient k v))
+    gradient))
+
+(defn- maybe-gradient [ctx v]
+  (if-let [grad (:gradient v)]
+    (create-gradient ctx grad)
+    v))
+
+(defmethod set-style* ::stroke
+  [ctx _ v]
+  (aset ctx "strokeStyle" (maybe-gradient ctx v)))
+
+(defmethod set-style* ::fill
+  [ctx _ v]
+  (aset ctx "fillStyle" (maybe-gradient ctx v)))
 
 (defn- set-style! [ctx style]
-  (doseq [[k v] (dissoc style :fill)]
-    (when v
-      ;;FIXME: Really weird state problems.
-      ;; ???
-      (aset ctx (clj->jsm k) v)))
-
-  ;; Treat fill specially for convenience
-  (when-let [fill (:fill style)]
-    (set! (.-fillStyle ctx) fill)))
+  (doseq [[k v] style]
+    (set-style* ctx k v)))
 
 ;;; Impl
 
@@ -96,4 +126,7 @@
   "Returns a Canvas object wrapping the given HTML canvas dom element."
   [elem]
   (let [ctx (.getContext elem "2d")]
+    ;; REVIEW: Experimental feature. Subjectively makes a small improvement. How
+    ;; can I test that empirically?
+    (set! (.-imageSmoothingEnabled ctx) true)
     (Canvas. elem ctx)))

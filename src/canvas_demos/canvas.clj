@@ -16,11 +16,12 @@
   happened.
   Very impure function that lets the rest of the program be a big more pure."
   [ctx style & body]
-  `(let [old# (save-style ~ctx)]
+  `(do
+     (.save ~ctx)
      (set-style! ~ctx ~style)
      ~@body
-     (when (and (contains? ~style :fill) (:fill ~style))
+     (when (some #(contains? ~style %) [:fill :fill-style])
        (.fill ~ctx))
-     (set-style! ~ctx old#)
+     (.restore ~ctx)
      ;; We don't want to arbitrarily return the last property set.
      nil))

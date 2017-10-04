@@ -14,10 +14,12 @@
 
 (def picture
   '(concat
-    (map #(apply translate house %)
-            [[100 100] [300 100] [700 400] [1000 1000]])
 
-    [(circle {:c [500 500]
+    [(circle {:style {:fill-style {:gradient {:from [200 800]
+                                          :to [800 200]
+                                          :stops {0 "hotpink"
+                                                  1 "aquamarine"}}}}
+              :c [500 500]
               :r 321})
 
      (circle {:c [0 0]
@@ -36,10 +38,14 @@
             :p [1000 1000]
             :q [1230 1045]})
 
+    (map #(apply translate house %)
+            [[100 100] [300 100] [700 400] [1000 1000]])
+
      (line {:style {:stroke-style "red"
                     :line-width 5}
             :p [1000 1000]
             :q [1230 1000]})
 
-     (line {:p [0 0]
+     (line {:style {:line-dash [10 10]}
+            :p [0 0]
             :q [1000 1000]})]))
