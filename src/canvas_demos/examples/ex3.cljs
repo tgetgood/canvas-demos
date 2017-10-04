@@ -15,17 +15,16 @@
    (line {:from [510 540] :to [580 440]})])
 
 (def picture
-  '[#_(-> boat
-          #_(rotate [500 440] 45))
+  '[(-> boat
+        (rotate [500 440] 45))
     (scale boat [400 400] 2 2)
     (scale boat [400 400] 3 2)
     (rotate boat [400 400] 120)
-    (translate 100 -100)
 
     (reflect boat [400 400] [1 1])
 
     boat
-    #_(-> boat
+    (-> boat
           (scale [500 440] 7 2)
           (rotate [500 440] 45)
           #_(translate 400 400))]

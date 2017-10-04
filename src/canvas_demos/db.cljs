@@ -1,38 +1,43 @@
 (ns canvas-demos.db
-  (:require [canvas-demos.interpreter :as interpreter]
+  (:require [canvas-demos.eval :as eval]
             [canvas-demos.examples.ex1 :as ex1]
+            [canvas-demos.examples.ex3 :as ex3]
             [cljs.tools.reader :as reader]
             [fipp.clojure :as fipp]
             [paren-soup.core :as ps]
             [reagent.core :as reagent]
-            [reagent.ratom :as ratom :include-macros true]
-            [canvas-demos.examples.ex2 :as ex2]
-            [canvas-demos.examples.ex3 :as ex3]))
+            [reagent.ratom :as ratom :include-macros true]))
 
 (defonce paren-soup (atom nil))
 
 (defonce window (reagent/atom {:zoom 1 :offset [0 0] :width 0 :height 0 }))
 
-(defonce selected (reagent/atom "blank"))
+(defonce selected (reagent/atom 'blank))
 
 ;; If this is defonce, we can edit from the browser and not lose our changes. If
 ;; this is just def, we can edit from an editor and see the changes in the
 ;; browser. Need both at different times.
 
 (def drawings
-  (reagent/atom {"house"   ex1/house
-                 "ex1"     ex1/picture
-                 "boat"    ex3/boat
-                 "boats"   ex3/picture
-                 "blank"   '[]}))
+  (reagent/atom {'house   ex1/house
+                 'ex1     ex1/picture
+                 'boat    ex3/boat
+                 'boats   ex3/picture
+                 'blank   '[]}))
 
 (def code
   (ratom/reaction
    (get @drawings @selected)))
 
-(def canvas
+(def canvas (reagent/atom []))
+
+(def compile-hack
+  ;; HACK: add-watch doesn't trigger properly on reactions... May be related to
+  ;; issue #244 in reagent (if it uses cursors under the hood).
   (ratom/reaction
-   (interpreter/eval @code @drawings)))
+   (eval/eval @code @selected
+              (fn [[_ res]]
+                (reset! canvas res)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Editor
@@ -69,7 +74,7 @@
 
 (defn init-editor! []
   (let [ed-elem (js/document.getElementById "editor")]
-    (reset! paren-soup (ps/init ed-elem #js {}))
+    (reset! paren-soup (ps/init ed-elem (clj->js {})))
     (update-editor-content! @code)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

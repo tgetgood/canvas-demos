@@ -2,6 +2,7 @@
   :dependencies [[fipp "0.6.10"]
                  [org.clojure/clojure "1.9.0-alpha17"]
                  [org.clojure/clojurescript "1.9.908"]
+                 [eval-soup "1.2.3"]
                  [paren-soup "2.8.13"]
                  [reagent "0.7.0"]]
 
