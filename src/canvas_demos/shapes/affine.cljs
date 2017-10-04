@@ -4,9 +4,9 @@
   N.B.: Affine transformations don't commute, so the order in which you apply
   the basic transformers is important."
   (:refer-clojure :exclude [val])
-  (:require-macros [canvas-demos.shapes.affine :refer [with-origin]])
   (:require [canvas-demos.canvas :as canvas]
-            [canvas-demos.drawing :as drawing :refer [val scalar]]))
+            [canvas-demos.shapes.protocols :refer [draw Drawable scalar val]])
+  (:require-macros [canvas-demos.shapes.affine :refer [with-origin]]))
 
 (defn det [a b c d]
   (- (* a d) (* b c)))
@@ -24,11 +24,11 @@
   ;; Draw this shape with the given affine transform. Reset the global state
   ;; after so as to not effect other shapes.
   ;; N.B.: requires serial rendering.
-  drawing/Drawable
+  Drawable
   (draw [_ ctx]
     (let [atx (-> raw-atx (update 4 val) (update 5 val))]
       (canvas/apply-affine-tx ctx atx)
-      (drawing/draw base-shape ctx)
+      (draw base-shape ctx)
       (canvas/apply-affine-tx ctx (invert-atx atx)))))
 
 (defn wrap-affine [base-shape atx]

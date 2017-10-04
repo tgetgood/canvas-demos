@@ -5,36 +5,18 @@
   (:require [clojure.string :as string])
   (:require-macros [canvas-demos.canvas :refer [with-stroke with-style]]))
 
-;;;;; Protocol
-
-(defprotocol ICanvas
-  ;; TODO: Presumably I should wrap the entire canvas API.
-  ;;
-  ;; Well, that's an interesting question. The canvas API doesn't have circles,
-  ;; but I want a circle. It has rectangles, but I can make rectangles from
-  ;; lines. I am designing a new language whether I like it or not, so let's
-  ;; take that responsibility head on.
-  (clear [this])
-  (apply-affine-tx [this atx])
-  (set-affine-tx [this atx] "Set the current affine tx matrix")
-  (pixel [this style p])
-  (line [this style p q])
-  (rectangle [this style p q]
-    "Rectangle defined by bottom left and top right corners")
-  (circle [this style centre radius]))
-
-;;;; Styling Logic
-
-(def style-abbrevs
-  (-> (make-hierarchy)
-    (derive :stroke      ::stroke)
-    (derive :stoke-style ::stroke)
-    (derive :fill        ::fill)
-    (derive :fill-style  ::fill)))
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Stateless Styling
+;;
 ;; TODO: Shadows
 ;; TODO: Text
 ;; TODO: ImageData (pixel manipulation)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def style-abbrevs
+  (-> (make-hierarchy)
+      (derive :stoke-style :stroke)
+      (derive :fill-style  :fill)))
 
 (defn key-tx [k]
   (let [bits (string/split (name k) #"-")]
@@ -46,7 +28,6 @@
     v))
 
 (defmulti set-style* (fn [ctx k v] k) :hierarchy #'style-abbrevs)
-
 
 (defmethod set-style* :default
   [ctx k v]
@@ -78,11 +59,11 @@
     (create-gradient ctx grad)
     v))
 
-(defmethod set-style* ::stroke
+(defmethod set-style* :stroke
   [ctx _ v]
   (aset ctx "strokeStyle" (maybe-gradient ctx v)))
 
-(defmethod set-style* ::fill
+(defmethod set-style* :fill
   [ctx _ v]
   (aset ctx "fillStyle" (maybe-gradient ctx v)))
 
@@ -90,7 +71,29 @@
   (doseq [[k v] style]
     (set-style* ctx k v)))
 
-;;; Impl
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Canvas Wrapper
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defprotocol ICanvas
+  ;; TODO: Presumably I should wrap the entire canvas API.
+  ;;
+  ;; Well, that's an interesting question. The canvas API doesn't have circles,
+  ;; but I want a circle. It has rectangles, but I can make rectangles from
+  ;; lines. I am designing a new language whether I like it or not, so let's
+  ;; take that responsibility head on.
+  (clear [this] "Restore the canvas to its initial state.")
+
+  (apply-affine-tx [this atx] "Multiply the current tx by atx")
+  (set-affine-tx [this atx] "Set the current affine tx matrix")
+
+  (pixel [this style point]
+    "Style a single pixel. Actually a square of width and height 1px whose
+    bottom left corner is the pixel in question")
+  (line [this style from to] "Draw a line")
+  (rectangle [this style bottom-left top-right]
+    "Rectangle defined by bottom left and top right corners")
+  (circle [this style centre radius] "Draws a circle"))
 
 (deftype Canvas [elem ctx]
   ICanvas

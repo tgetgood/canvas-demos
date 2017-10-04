@@ -1,6 +1,7 @@
 (ns canvas-demos.examples.mandelbrot
   (:require [canvas-demos.db :as db]
-            [canvas-demos.drawing :as drawing]))
+            [canvas-demos.drawing :as drawing]
+            [canvas-demos.shapes.protocols :refer [Drawable]]))
 
 ;;;;; Complex mult
 
@@ -49,7 +50,7 @@
       (recur (step ps zoom offset i) (inc i)))))
 
 (defrecord Mandlebrot [window]
-  drawing/Drawable
+  Drawable
   (draw [_ ctx]
     (let [escape                 (mandelbrot window)
           {:keys [height width]} window

@@ -1,82 +1,18 @@
 (ns canvas-demos.drawing
-  (:refer-clojure :exclude [val])
   (:require [canvas-demos.canvas :as canvas]
             [canvas-demos.canvas-utils :as canvas-utils]
+            [canvas-demos.shapes.protocols :as protocols]
             [clojure.walk :as walk]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;; Protocols
+;;;;; Projection
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defprotocol Drawable
-  (draw [this ctx]))
-
-(extend-protocol Drawable
-  default
-  (draw [this _]
-    (.error js/console (str "I don't know how to draw a " (type this))))
-
-  nil
-  (draw [_ _]
-    (.error js/console "Can't draw a nil."))
-
-  PersistentVector
-  (draw [this ctx]
-    (doseq [s this]
-      (draw s ctx)))
-
-  LazySeq
-  (draw [this ctx]
-    (doseq [s this]
-      (draw s ctx)))
-
-  List
-  (draw [this ctx]
-    (doseq [s this]
-      (draw s ctx))))
-
-(defprotocol Valuable
-  (val [this]))
-
-(extend-protocol Valuable
-  default
-  (val [this] this))
-
-(defprotocol Projectable
-  (project [this window]))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;; Projection Types
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defrecord Vector [x y]
-  Projectable
-  (project [this {z :zoom [ox oy] :offset}]
-    (Vector. (+ ox (* z x)) (+ oy (* z y))))
-
-  Valuable
-  (val [_] [x y]))
-
-(defrecord Scalar [s]
-  Projectable
-  (project [_ {z :zoom}]
-    (Scalar. (* z s)))
-
-  Valuable
-  (val [_] s))
-
-(defn vec2
-  ([[x y]] (vec2 x y))
-  ([x y] (Vector. x y)))
-
-(defn scalar [s]
-  (Scalar. s))
 
 (defn project-all [picture window]
   (walk/prewalk
    (fn [o]
-     (if (satisfies? Projectable o)
-       (project o window)
+     (if (satisfies? protocols/Projectable o)
+       (protocols/project o window)
        o))
    picture))
 
@@ -94,7 +30,7 @@
     ;; Use a fixed Affine tx to normalise coordinates.
     ;; REVIEW: Does resetting this on each frame hurt performance?
     (canvas/set-affine-tx ctx [1 0 0 -1 0 h])
-    (draw (if window
+    (protocols/draw (if window
             (project-all content window)
             content)
           ctx)))

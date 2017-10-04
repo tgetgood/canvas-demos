@@ -15,37 +15,38 @@
 (def picture
   '(concat
 
-    [(circle {:style {:fill-style {:gradient {:from [200 800]
-                                          :to [800 200]
-                                          :stops {0 "hotpink"
-                                                  1 "aquamarine"}}}}
-              :c [500 500]
-              :r 321})
+    [(circle {:style {:fill {:gradient {:from [200 800]
+                                        :to [800 200]
+                                        :stops {0 "hotpink"
+                                                1 "aquamarine"}}}}
+              :centre [500 500]
+              :radius 321})
 
-     (circle {:c [0 0]
-              :r 225
+     (circle {:centre [0 0]
+              :radius 225
               :style {:fill "purple"
                       :line-width 15}})
 
-     (rectangle {:p [1000 1000]
-                 :w 230
-                 :h 45})
+     (rectangle {:bottom-left [1000 1000]
+                 :width 230
+                 :height 45})
 
-     (rectangle {:fill "pink"} [742 614] 10 10)
+     (rectangle {:fill "pink"} [200 800] 10 10)
+     (rectangle {:fill "pink"} [800 200] 10 10)
 
-     (line {:style {:stroke-style "blue"
+     (line {:style {:stroke "blue"
                     :line-width 5}
-            :p [1000 1000]
-            :q [1230 1045]})
+            :from [1000 1000]
+            :to [1230 1045]})
 
     (map #(apply translate house %)
             [[100 100] [300 100] [700 400] [1000 1000]])
 
      (line {:style {:stroke-style "red"
                     :line-width 5}
-            :p [1000 1000]
-            :q [1230 1000]})
+            :from [1000 1000]
+            :to [1230 1000]})
 
      (line {:style {:line-dash [10 10]}
-            :p [0 0]
-            :q [1000 1000]})]))
+            :from [0 0]
+            :to [1000 1000]})]))

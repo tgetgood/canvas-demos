@@ -53,8 +53,7 @@
 
 (defn update-editor-content! [content]
   (ps/edit-and-refresh! @paren-soup
-                        (->> content
-                             fipp/pprint
+                        (->> (fipp/pprint content {:width 50})
                              with-out-str
                              (assoc (editor-content) :text))))
 
