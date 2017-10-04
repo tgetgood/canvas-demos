@@ -5,7 +5,9 @@
             [fipp.clojure :as fipp]
             [paren-soup.core :as ps]
             [reagent.core :as reagent]
-            [reagent.ratom :as ratom :include-macros true]))
+            [reagent.ratom :as ratom :include-macros true]
+            [canvas-demos.examples.ex2 :as ex2]
+            [canvas-demos.examples.ex3 :as ex3]))
 
 (defonce paren-soup (atom nil))
 
@@ -18,9 +20,11 @@
 ;; browser. Need both at different times.
 
 (def drawings
-  (reagent/atom {"house" ex1/house
-                 "ex1"   ex1/picture
-                 "blank" '[]}))
+  (reagent/atom {"house"   ex1/house
+                 "ex1"     ex1/picture
+                 "boat"    ex3/boat
+                 "boats"   ex3/picture
+                 "blank"   '[]}))
 
 (def code
   (ratom/reaction

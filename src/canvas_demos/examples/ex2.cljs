@@ -1,7 +1,6 @@
 (ns canvas-demos.examples.ex2
   "Basic Animation Demo"
-  (:require [canvas-demos.drawing :as drawing]
-            [canvas-demos.shapes.base :as base :refer [circle]]))
+  (:require [canvas-demos.shapes.base :as base :refer [circle]]))
 
 (defn rc []
   (str "rgb("
@@ -22,11 +21,5 @@
 (defn c-seq []
   (cfn (rand-int 1000) (rand-int 1000) (rand-int 100)))
 
-(defn start! []
-  (when-not (drawing/animating?)
-    (drawing/animate!
-     (partition 100 (apply interleave (take 100 (repeatedly c-seq))))
-     true)))
-
-(defn stop! []
-  (drawing/stop-animation!))
+(def picture
+  '(take 100 (apply interleave (take 100 (repeatedly c-seq)))))
