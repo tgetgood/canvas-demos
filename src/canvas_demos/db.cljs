@@ -10,6 +10,8 @@
 
 (defonce paren-soup (atom nil))
 
+(def input-mode (reagent/atom :grab))
+
 (defonce window (reagent/atom {:zoom 1 :offset [0 0] :width 0 :height 0 }))
 
 (defonce selected (reagent/atom 'blank))
@@ -90,3 +92,6 @@
   (when (contains? @drawings name)
     (reset! selected name)
     (update-editor-content! @code)))
+
+(defn set-input-mode! [k]
+  (reset! input-mode k))

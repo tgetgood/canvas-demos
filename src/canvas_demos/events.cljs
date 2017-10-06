@@ -40,11 +40,21 @@
           (fn [[x y]]
             [(- x dx) (- y dy)])))
 
+;;;;; Drawing
+;; Brace yourself
+
+(def current-draw (atom {}))
+
+(defn init-draw [type point])
+(defn update-draw [point])
+
 ;;;;; Handlers
 
 (def handlers
   {:mouse-down (fn [e]
-                 (reset! drag-state (c-space-point e)))
+                 (reset! drag-state (c-space-point e))
+                 (when-not (= :grab @db/input-mode)
+                   (init-draw @db/input-mode @drag-state)))
    :mouse-up   (fn [e]
                  (reset! drag-state nil))
    :mouse-move (fn [e]
@@ -53,7 +63,9 @@
                          p     @drag-state
                          delta (mapv - p q)]
                      (reset! drag-state q)
-                     (swap! window update-offset delta))))
+                     (if (= :grab @db/input-mode)
+                       (swap! window update-offset delta)
+                       (update-draw @drag-state)))))
    :wheel      (fn [e]
                  (let [p  (c-space-point e)
                        dz (normalise-zoom (js/parseInt (.-deltaY e)))]

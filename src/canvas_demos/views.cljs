@@ -39,6 +39,24 @@
                 name])
           (keys @db/drawings))))
 
+(defn widget [k]
+  (fn [k]
+    [:button {:style {:width "auto"
+                      :height "30px"}
+              :on-click (fn [_]
+                          (println k))}
+     (name k)]))
+
+(defn drawing-widgets []
+  (into [:div]
+        (map (fn [k]
+    [:button {:style {:width "auto"
+                      :height "30px"}
+              :on-click (fn [_]
+                          (db/set-input-mode! k))}
+     (name k)])
+          [:grab :rect :line :circle :fill-rect :fill-circle])))
+
 (defn main []
   (fn []
     (let []
@@ -50,6 +68,12 @@
                       :width  "60px"
                       :height "auto"}}
         [image-selector]]
+       [:div {:style {:position "absolute"
+                      :top 10
+                      :right 100
+                      :height "60px"
+                      :widht "auto"}}
+        [drawing-widgets]]
        [:div {:style {:height "100%"
                       :width  "100%"}}
         [canvas @db/canvas @db/compile-hack]]])))
