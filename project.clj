@@ -26,6 +26,7 @@
   :cljsbuild
   {:builds
    [{:id           "dev"
+     :notify-command ["./move-macros.sh"]
      :source-paths ["src"]
      :figwheel     {:on-jsload            "canvas-demos.core/mount-root"}
      :compiler     {:main                 canvas-demos.core
