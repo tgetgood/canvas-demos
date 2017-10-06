@@ -56,8 +56,8 @@
   (let [{:keys [current-state states]} edit-history]
     (get states current-state)))
 
-(defn editor-content []
-  (current-edit @(.-edit-history @paren-soup)))
+(defn editor-content [editor]
+  (current-edit @(.-edit-history editor)))
 
 (defn update-from-editor! [_ _ old editor]
   (let [current (current-edit editor)]
@@ -67,22 +67,28 @@
           (swap! drawings assoc @selected form))
         (catch js/Error e nil)))))
 
-(defn update-editor-content! [content]
-  (ps/edit-and-refresh! @paren-soup
+(defn update-editor-content! [editor content]
+  (ps/edit-and-refresh! editor
                         (->> (fipp/pprint content {:width 50})
                              with-out-str
-                             (assoc (editor-content) :text))))
+                             (assoc (editor-content editor) :text))))
 
-(defn disconnect-editor! []
-  (remove-watch (.-edit-history @paren-soup) :editor))
+(defn disconnect-editor! [editor]
+  (remove-watch code :editor)
+  (when editor
+    (remove-watch (.-edit-history editor) :editor)))
 
-(defn connect-editor! []
-  (add-watch (.-edit-history @paren-soup) :editor update-from-editor!))
+(defn connect-editor! [editor]
+  (add-watch (.-edit-history editor) :editor update-from-editor!)
+  (add-watch code :editor (fn [_ _ _ code]
+                            (update-editor-content! editor code))))
 
 (defn init-editor! []
+  (disconnect-editor! @paren-soup)
   (let [ed-elem (js/document.getElementById "editor")]
     (reset! paren-soup (ps/init ed-elem (clj->js {})))
-    (update-editor-content! @code)))
+    (update-editor-content! @paren-soup @code)
+    (connect-editor! @paren-soup)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; State Mutation
@@ -91,7 +97,7 @@
 (defn set-current-drawing! [name]
   (when (contains? @drawings name)
     (reset! selected name)
-    (update-editor-content! @code)))
+    (update-editor-content! @paren-soup @code)))
 
 (defn set-input-mode! [k]
   (reset! input-mode k))

@@ -39,8 +39,7 @@
 
 (defn ^:export mount-root []
   (watch-resize!)
-  (db/disconnect-editor!)
-  (db/connect-editor!)
+  (db/init-editor!)
 
   (drawing/stop-animation!)
   (remove-watch db/window :main)
@@ -52,5 +51,4 @@
 
 (defn ^:export init []
   (dev-setup)
-  (db/init-editor!)
   (mount-root))
