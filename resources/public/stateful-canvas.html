@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<div>
+			<p>Given the following simple drawing functions:</p>
+			<code width=80em>
+				<p>
+					<div>const line = ctx => {</div>
+					<div>ctx.beginPath()</div>
+					<div>ctx.moveTo(10, 50)</div>
+					<div>ctx.lineTo(200, 50)</div>
+					<div>ctx.endPath()</div>
+					<div>ctx.stroke()</div>
+					<div>}</div>
+				</p>
+				<p>
+					<div>const redLine = ctx => {</div>
+					<div>ctx.strokeStyle = 'red'</div>
+					<div>ctx.beginPath()</div>
+					<div>ctx.moveTo(10, 130)</div>
+					<div>ctx.lineTo(200, 130)</div>
+					<div>ctx.endPath()</div>
+					<div>ctx.stroke()</div>
+					<div>}</div>
+				</p>
+			</code>
+			<p>
+				If we call them in one order
+				<code>
+					<p>
+						line(ctx)<br>
+						redLine(ctx)
+					</p>
+				</code>
+			</p>
+
+			<div> <canvas id="c1"/></div>
+
+			<p>
+				And in the other:
+			<p>
+				<code>
+					redLine(ctx)<br>
+					line(ctx)
+				</code>
+			</p>
+			</p>
+			<div><canvas id="c2"/></div>
+
+			<p>
+				Obviously we need to guard our code. We can do that using the save and
+				restore methods. Like so
+			</p>
+			<code>
+				<p>
+					const safeRedLine = ctx => {<br>
+					ctx.save()<br>
+					ctx.strokeStyle = "red"<br>
+					ctx.beginPath()<br>
+					ctx.moveTo(10, 130)<br>
+					ctx.lineTo(200, 130)<br>
+					ctx.endPath()<br>
+					ctx.stroke()<br>
+					ctx.restore()<br>
+					}
+				</p>
+			</code>
+			<p>
+				And try again:
+			</p>
+			<p>
+				<code>
+					safeRedLine(ctx)<br>
+					line(ctx)
+				</code>
+			</p>
+			<div><canvas id="c3"/></div>
+
+			<p>
+				Tada!!
+			</p>
+			<p>
+				So we're good, right? Well suppose we find a cool library with a function
+				dottedLine that we think will save us a lot of time. It even takes in a
+				colour! It's okay to use it, right? Let's see:
+			</p>
+			<code>
+				<p>
+					thirdParty.dottedLine(ctx, 'green')<br>
+					safeRedLine(ctx)<br>
+					line(ctx)
+				</p>
+			</code>
+			<div><canvas id="c4"/></div>
+
+			<p>
+				Wait! What??
+			</p>
+			<p>
+				Why is my blank line now green? Why is even the "safe" red line dotted?
+			</p>
+			<p>
+				The problem is that dottedLine left the global state dirty, so to
+				protect ourselves from that we need to write a function which clears the
+				global state and call that at the beginning of every function. Sound
+				familiar? Just like a CSS reset. So it's okay right? because we're used
+				to it.
+			</p>
+			<p>
+				No, it's not okay. And the fact that we're used to it doesn't make it
+				any better.
+			</p>
+
+	</body>
+	<script>
+		const line = ctx => {
+		ctx.beginPath()
+		ctx.moveTo(10, 50)
+		ctx.lineTo(200, 50)
+		ctx.closePath()
+		ctx.stroke()
+		}
+
+		const redLine = ctx => {
+		ctx.strokeStyle = "red"
+		ctx.beginPath()
+		ctx.moveTo(10, 130)
+		ctx.lineTo(200, 130)
+		ctx.closePath()
+		ctx.stroke()
+		}
+
+		const safeRedLine = ctx => {
+		ctx.save()
+		ctx.strokeStyle = "red"
+		ctx.beginPath()
+		ctx.moveTo(10, 130)
+		ctx.lineTo(200, 130)
+		ctx.closePath()
+		ctx.stroke()
+		ctx.restore()
+		}
+
+		const dottedLine = (ctx, colour) => {
+		ctx.strokeStyle = colour
+		ctx.setLineDash([5, 10, 15])
+		ctx.beginPath()
+		ctx.moveTo(10, 90)
+		ctx.lineTo(200, 90)
+		ctx.closePath()
+		ctx.stroke()
+		}
+	</script>
+	<script>
+		var ctx = document.getElementById("c1").getContext("2d")
+		line(ctx)
+		redLine(ctx)
+	</script>
+	<script>
+		var ctx = document.getElementById("c2").getContext("2d")
+		redLine(ctx)
+		line(ctx)
+	</script>
+	<script>
+		var ctx = document.getElementById("c3").getContext("2d")
+		safeRedLine(ctx)
+		line(ctx)
+	</script>
+	<script>
+		var ctx = document.getElementById("c4").getContext("2d")
+		dottedLine(ctx, 'green')
+		safeRedLine(ctx)
+		line(ctx)
+	</script>
+
+</html>
