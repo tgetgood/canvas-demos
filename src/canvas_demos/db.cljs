@@ -23,11 +23,12 @@
                  'ex1     ex1/picture
                  'boat    ex3/boat
                  'boats   ex3/picture
-                 'blank   '[]}))
+                 'blank   []}))
 
 (def code
   (ratom/reaction
-   (get @drawings @selected)))
+   (when @selected
+     (get @drawings @selected))))
 
 (def canvas (reagent/atom []))
 
@@ -35,9 +36,13 @@
   ;; HACK: add-watch doesn't trigger properly on reactions... May be related to
   ;; issue #244 in reagent (if it uses cursors under the hood).
   (ratom/reaction
-   (eval/eval @code @selected
-              (fn [[_ res]]
-                (reset! canvas res)))))
+   (when-let [code @code]
+     ;; Always bind evalled code to a var, then deref the var for the val
+     (eval/eval (list 'try (list 'def @selected code)
+                      '(catch js/Error _ nil))
+                (fn [[res]]
+                  (when res
+                    (reset! canvas (deref res))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Editor
