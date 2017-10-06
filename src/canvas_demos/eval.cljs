@@ -3,7 +3,9 @@
 
 (def evaluation-ns 'cljs.user)
 
-(def eval-ns (atom 'cljs.user))
+(def eval-ns
+  (do (create-ns 'canvas-demos.eval.evaluation)
+      (atom 'canvas-demos.eval.evaluation)))
 
 (def require-form
   '(:require [canvas-demos.shapes.affine
