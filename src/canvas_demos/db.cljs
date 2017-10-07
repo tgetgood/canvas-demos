@@ -80,13 +80,14 @@
 
 (defn connect-editor! [editor]
   (add-watch (.-edit-history editor) :editor update-from-editor!)
-  (add-watch code :editor (fn [_ _ _ code]
-                            (update-editor-content! editor code))))
+  (add-watch code :editor (fn [_ _ old code]
+                            (when-not (= old code)
+                              (update-editor-content! editor code)))))
 
 (defn init-editor! []
   (disconnect-editor! @paren-soup)
   (let [ed-elem (js/document.getElementById "editor")]
-    (reset! paren-soup (ps/init ed-elem (clj->js {})))
+    (reset! paren-soup (ps/init ed-elem (clj->js {:disable-clj? true})))
     (update-editor-content! @paren-soup @code)
     (connect-editor! @paren-soup)))
 

@@ -41,20 +41,17 @@
 
 (defn widget [k]
   (fn [k]
-    [:button {:style {:width "auto"
-                      :height "30px"}
+    [:button {:style (merge {:width "auto"
+                             :height "30px"}
+                            (when (= k @db/input-mode)
+                              {:backgroundColor "#898989"}))
               :on-click (fn [_]
-                          (println k))}
+                          (db/set-input-mode! k))}
      (name k)]))
 
 (defn drawing-widgets []
   (into [:div]
-        (map (fn [k]
-    [:button {:style {:width "auto"
-                      :height "30px"}
-              :on-click (fn [_]
-                          (db/set-input-mode! k))}
-     (name k)])
+        (map (fn [x] [widget x])
           [:grab :rect :line :circle :fill-rect :fill-circle])))
 
 (defn main []

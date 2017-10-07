@@ -4,8 +4,8 @@
 
 (def house
   '[(rectangle {:line-width 15
-               :stroke-style "purple"
-                :fill "pink"}
+               :stroke-style :purple
+                :fill :#AAAAAA}
                [0 0] 140 100)
     (line {:line-width 10} [-7 107] [70 (+ 100 70)])
 
@@ -14,11 +14,10 @@
 
 (def picture
   '(concat
-
     [(circle {:style {:fill {:gradient {:from [200 800]
                                         :to [800 200]
-                                        :stops {0 "hotpink"
-                                                1 "aquamarine"}}}}
+                                        :stops {0 :hotpink
+                                                1 :aquamarine}}}}
               :centre [500 500]
               :radius 321})
 
