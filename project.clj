@@ -40,13 +40,6 @@
                       :external-config      {:devtools/config {:features-to-install :all}}
                       }}
 
-    {:id           "worker"
-     :source-paths ["src"]
-     :compiler     {:output-to            "resources/public/js/compiled/worker.js"
-                    :output-dir           "resources/public/js/compiled/wout"
-                    :optimizations        :none
-                    :parallel-build       true
-                    :source-map-timestamp true}}
     {:id           "min"
      :source-paths ["src"]
      :compiler     {:main            canvas-demos.core
