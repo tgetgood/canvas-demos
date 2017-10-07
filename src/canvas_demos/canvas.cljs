@@ -51,13 +51,13 @@
                    (linear-gradient ctx from to)
                    (radial-gradient ctx from to))]
     (doseq [[k v] stops]
-      (.addColorStop gradient k v))
+      (.addColorStop gradient k (name v)))
     gradient))
 
 (defn- maybe-gradient [ctx v]
   (if-let [grad (:gradient v)]
     (create-gradient ctx grad)
-    v))
+    (name v)))
 
 (defmethod set-style* :stroke
   [ctx _ v]

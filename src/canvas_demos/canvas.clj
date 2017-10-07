@@ -20,7 +20,7 @@
      (.save ~ctx)
      (set-style! ~ctx ~style)
      ~@body
-     (when (some #(contains? ~style %) [:fill :fill-style])
+     (when (or (:fill ~style) (:fill-style ~style))
        (.fill ~ctx))
      (.restore ~ctx)
      ;; We don't want to arbitrarily return the last property set.
