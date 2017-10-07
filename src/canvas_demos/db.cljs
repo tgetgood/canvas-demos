@@ -52,8 +52,7 @@
 (go
   (loop []
     (when-let [[selected code] (async/<! compile-ch)]
-      (println "compiling")
-     ;; Always bind evalled code to a var, then deref the var for the val
+      ;; Always bind evalled code to a var, then deref the var for the val
       (eval/eval (list 'try (list 'def selected code)
                       '(catch js/Error _ nil))
                 (fn [[res]]
