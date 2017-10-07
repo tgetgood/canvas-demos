@@ -1,7 +1,9 @@
 (ns canvas-demos.db
+  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [canvas-demos.eval :as eval]
             [canvas-demos.examples.ex1 :as ex1]
             [canvas-demos.examples.ex3 :as ex3]
+            [cljs.core.async :as async]
             [cljs.tools.reader :as reader]
             [fipp.clojure :as fipp]
             [paren-soup.core :as ps]
@@ -34,23 +36,30 @@
 
 (def canvas (reagent/atom []))
 
-(def compile-hack
-  ;; HACK: add-watch doesn't trigger properly on reactions... May be related to
-  ;; issue #244 in reagent (if it uses cursors under the hood).
-  (ratom/reaction
-   (when-let [code @code]
-     ;; Always bind evalled code to a var, then deref the var for the val
-     (eval/eval (list 'try (list 'def @selected code)
-                      '(catch js/Error _ nil))
-                (fn [[res]]
-                  (when res
-                    (reset! canvas (deref res))))))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Editor
 ;;;;;
 ;;;;; TODO: This stuff does not belong in this namespace.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defonce compile-ch (async/chan (async/sliding-buffer 1)))
+
+(add-watch code :compiler
+           (fn [_ _ old new]
+             (when-not (= old new)
+               (async/put! compile-ch [@selected new]))))
+
+(go
+  (loop []
+    (when-let [[selected code] (async/<! compile-ch)]
+      (println "compiling")
+     ;; Always bind evalled code to a var, then deref the var for the val
+      (eval/eval (list 'try (list 'def selected code)
+                      '(catch js/Error _ nil))
+                (fn [[res]]
+                  (when res
+                    (reset! canvas (deref res)))))
+      (recur))))
 
 (defn current-edit [edit-history]
   (let [{:keys [current-state states]} edit-history]

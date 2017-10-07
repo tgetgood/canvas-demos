@@ -73,4 +73,4 @@
         [drawing-widgets]]
        [:div {:style {:height "100%"
                       :width  "100%"}}
-        [canvas @db/canvas @db/compile-hack]]])))
+        [canvas @db/canvas @db/code]]])))
