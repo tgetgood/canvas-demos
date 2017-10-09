@@ -80,7 +80,7 @@
   (count-frame)
   (let [[frame & more] @animation-frames]
     (when frame
-      (draw! frame windowed?)
+      (draw! frame (when windowed? @db/window))
       (swap! animation-frames rest)
       (raf #(animate* windowed?)))))
 
