@@ -12,16 +12,15 @@
                            (let [[w h :as dim] (canvas/canvas-container-dimensions)]
                              (swap! db/window assoc :width w :height h))
                            (canvas/fullscreen-canvas!)
-                           (let [drawing (:img (reagent/props this))]
-                             (drawing/draw! drawing @db/window)))
+                           (drawing/redraw!))
     :component-did-update (fn [this]
                             (let [[w h :as dim] (canvas/canvas-container-dimensions)]
                              (swap! db/window assoc :width w :height h))
                            (canvas/fullscreen-canvas!)
-                            (let [drawing (:img (reagent/props this))]
-                             (drawing/draw! drawing @db/window)))
+                            (drawing/redraw!))
     :reagent-render      (fn [_]
                            [:canvas#canvas events/canvas-event-handlers])}))
+
 
 (defn canvas [drawing]
   [:div#canvas-container {:style {:height   "100%"
@@ -55,22 +54,24 @@
           [:grab :rect :line :circle :fill-rect :fill-circle])))
 
 (defn main []
-  (fn []
-    (let []
-      [:div {:style {:overflow "hidden"
-                     :height   "100%"}}
-       [:div {:style {:position "absolute"
-                      :z-index "10"
-                      :float "left"
-                      :width  "60px"
-                      :height "auto"}}
-        [image-selector]]
-       [:div {:style {:position "absolute"
-                      :top 10
-                      :right 100
-                      :height "60px"
-                      :widht "auto"}}
-        [drawing-widgets]]
-       [:div {:style {:height "100%"
-                      :width  "100%"}}
-        [canvas @db/canvas @db/code]]])))
+  (if (js/document.getElementById "editor")
+    (fn []
+      (let []
+        [:div {:style {:overflow "hidden"
+                       :height   "100%"}}
+         [:div {:style {:position "absolute"
+                        :z-index "10"
+                        :float "left"
+                        :width  "60px"
+                        :height "auto"}}
+          [image-selector]]
+         [:div {:style {:position "absolute"
+                        :top 10
+                        :right 100
+                        :height "60px"
+                        :widht "auto"}}
+          [drawing-widgets]]
+         [:div {:style {:height "100%"
+                        :width  "100%"}}
+          [canvas @db/canvas @db/code]]]))
+    [canvas]))

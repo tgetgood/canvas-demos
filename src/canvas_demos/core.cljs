@@ -11,9 +11,6 @@
     (enable-console-print!)
     (println "dev mode")))
 
-(defn redraw! []
-  (drawing/draw! @db/canvas @db/window))
-
 (defn watch-resize! []
   (let [running (atom false)]
     (set! (.-onresize js/window)
@@ -26,7 +23,7 @@
                    (let [[w h :as dim] (canvas/canvas-container-dimensions)]
                      (swap! db/window assoc :width w :height h))
                    (canvas/fullscreen-canvas!)
-                   (redraw!)))))))))
+                   (drawing/redraw!)))))))))
 
 (defn refresh-app!
   [f]
@@ -39,11 +36,12 @@
 
 (defn ^:export mount-root []
   (watch-resize!)
-  (db/init-editor!)
+  (when (js/document.getElementById "editor")
+    (db/init-editor!))
 
   (drawing/stop-animation!)
   (remove-watch db/window :main)
-  (add-watch db/window :main redraw!)
+  (add-watch db/window :main drawing/redraw!)
 
   (reagent/render [views/main]
                   (.getElementById js/document "app")))

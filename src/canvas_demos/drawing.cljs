@@ -1,6 +1,7 @@
 (ns canvas-demos.drawing
   (:require [canvas-demos.canvas :as canvas]
             [canvas-demos.canvas-utils :as canvas-utils]
+            [canvas-demos.db :as db]
             [canvas-demos.shapes.protocols :as protocols]
             [clojure.walk :as walk]))
 
@@ -34,6 +35,22 @@
             (project-all content window)
             content)
           ctx)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Hacky Global Redraw
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defonce current-drawing db/canvas)
+
+(defn redraw! []
+  (draw! @current-drawing @db/window))
+
+(def var-table
+  {:ex1 #'canvas-demos.examples.ex1/picture})
+
+(defn switch! [sym]
+  (set! current-drawing (get var-table sym))
+  (redraw!))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Animation

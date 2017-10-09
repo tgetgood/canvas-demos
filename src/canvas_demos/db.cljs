@@ -23,9 +23,7 @@
 ;; browser. Need both at different times.
 
 (def drawings
-  (reagent/atom {'house   ex1/house
-                 'ex1     ex1/picture
-                 'boat    ex3/boat
+  (reagent/atom {'boat    ex3/boat
                  'boats   ex3/picture
                  'blank   []}))
 

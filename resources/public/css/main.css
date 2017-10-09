@@ -12,15 +12,20 @@ html, body {
 }
 
 #app {
+		width: 100%;
+		height: 100%;
+}
+
+#app-ed {
 		float: right;
-		width: 70%;
+		width: 60%;
 		height: 100%;
 }
 
 .paren-soup {
 		float: left;
 		height: 100%;
-		width: 30%;
+		width: 40%;
 }
 
  .paren-soup .content {
