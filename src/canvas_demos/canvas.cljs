@@ -95,7 +95,12 @@
     "Rectangle defined by bottom left and top right corners")
   (circle [this style centre radius] "Draws a circle"))
 
-(deftype Canvas [elem ctx]
+(deftype Canvas [elem ctx
+                 ;; REVIEW: Should I reify and use atoms, or is this good form?
+                 ;; More potential to screw up this way, that's for sure.
+                 ^:mutable __point
+                 ^:mutable __path-start
+                 ^:mutable __in-stroke?]
   ICanvas
   (clear [_]
     (let [width (.-clientWidth elem)
@@ -109,21 +114,22 @@
     (with-style ctx style
       (.moveTo ctx x y)
       (.fillRect ctx x y 1 1)))
-  (line [_ style [x1 y1] [x2 y2]]
-    (with-style ctx style
-      (with-stroke ctx
-        (.moveTo ctx x1 y1)
-        (.lineTo ctx x2 y2))))
+
+  (line [_ style from [x2 y2 :as to]]
+    (when-not (empty? style)
+      (set! __path-start nil)
+      (set! __in-stroke? false))
+    (with-stroke ctx from to
+      (with-style ctx style
+        (.lineTo ctx x2 y2)
+        (.stroke ctx))))
+
   (rectangle [_ style [x1 y1] [x2 y2]]
     (with-style ctx style
-      (with-stroke ctx
-        (.moveTo ctx x1 y1)
-        (.rect ctx x1 y1 (- x2 x1) (- y2 y1)))))
+      (.rect ctx x1 y1 (- x2 x1) (- y2 y1))))
   (circle [_ style [x y] r]
     (with-style ctx style
-      (with-stroke ctx
-        (.moveTo ctx (+ r x) y)
-        (.arc ctx x y r 0 (* 2 js/Math.PI))))))
+      (.arc ctx x y r 0 (* 2 js/Math.PI)))))
 
 (defn context
   "Returns a Canvas object wrapping the given HTML canvas dom element."
@@ -132,4 +138,4 @@
     ;; REVIEW: Experimental feature. Subjectively makes a small improvement. How
     ;; can I test that empirically?
     (set! (.-imageSmoothingEnabled ctx) true)
-    (Canvas. elem ctx)))
+    (->Canvas elem ctx nil nil false)))

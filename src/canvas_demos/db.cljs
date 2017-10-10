@@ -4,7 +4,7 @@
 
 ;;;;; State
 
-(defonce current-drawing (atom #'ex1/picture))
+(defonce current-drawing (atom #'ex1/house))
 
 (defonce window (atom {:zoom 1 :offset [0 0] :width 0 :height 0}))
 
@@ -22,7 +22,7 @@
 (def var-table
   {:ex1 #'ex1/picture
    :house #'ex1/house
-   :test #'ex1/line-test})
+   })
 
 (defn switch! [sym]
   (reset! current-drawing (get var-table sym)))

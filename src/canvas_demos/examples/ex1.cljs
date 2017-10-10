@@ -1,17 +1,10 @@
 (ns canvas-demos.examples.ex1
   "Demo of declarative drawing and composition"
   (:require [canvas-demos.shapes.affine :refer [translate]]
-            [canvas-demos.shapes.base :as base :refer [circle line rectangle]]))
+            [canvas-demos.shapes.base :as base :refer [circle line rectangle tt]]))
 
 (def house
-  [(rectangle {:line-width 15
-               :stroke-style :purple
-                :fill :#AAAAAA}
-               [0 0] 140 100)
-    (line {:line-width 10} [-7 107] [70 (+ 100 70)])
-
-    (line {:line-width 10} [147 107] [70 (+ 100 70)])])
-
+  (tt))
 
 (def picture
   (concat

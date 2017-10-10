@@ -2,13 +2,28 @@
   (:require [clojure.string :as string]))
 
 (defmacro with-stroke
-  "Wraps body in boilerplate code for strokes on canvas and executes."
-  [ctx & body]
+  "Wraps drawing logic to manage path state for contiguous curves."
+  [ctx from to & body]
   `(do
-     (.beginPath ~ctx)
+     ;; REVIEW: Lexical capture. Classic no no.
+     (when-not ~'__in-stroke?
+       (.stroke ~ctx)
+       (.beginPath ~ctx)
+       (set! ~'__in-stroke? true)
+       (set! ~'__path-start ~from))
+
+     (when-not (= ~'__point ~from)
+       (apply (fn [x# y#] (.moveTo ~ctx x# y#)) ~from))
+
      ~@body
-     (.closePath ~ctx)
-     (.stroke ~ctx)))
+
+     (set! ~'__point ~to)
+     (when (= ~'__point ~'__path-start)
+       (.closePath ~ctx)
+       (.stroke ~ctx)
+       (set! ~'__in-stroke? false)
+       (set! ~'__path-start nil))))
+
 
 (defmacro with-style
   "Saves current global draw state, sets up global draw state according to
