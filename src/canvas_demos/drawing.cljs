@@ -41,14 +41,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn redraw! []
-  (draw! @db/current-drawing @db/window))
-
-(def var-table
-  {:ex1 #'canvas-demos.examples.ex1/picture})
-
-(defn switch! [sym]
-  (set! db/current-drawing (get var-table sym))
-  (redraw!))
+  (draw! @@db/current-drawing @db/window))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Animation

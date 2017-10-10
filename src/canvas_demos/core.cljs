@@ -23,25 +23,23 @@
                    (canvas/fullscreen-canvas!)
                    (drawing/redraw!)))))))))
 
-(defn update-window! []
-  (let [[w h] (canvas/canvas-container-dimensions)]
-    (swap! db/window assoc :width w :height h)))
-
 (defn ^:export mount-root []
   (canvas/fullscreen-canvas!)
   (watch-resize!)
-  (update-window!)
+  (db/update-window-dimensions!)
 
   (drawing/stop-animation!)
   (remove-watch db/window :main)
   (add-watch db/window :main drawing/redraw!)
+
+  (remove-watch db/current-drawing :main)
+  (add-watch db/current-drawing :main drawing/redraw!)
 
   (let [elem (.getElementById js/document "app")]
     (events/remove-handlers! elem)
     (events/register-handlers! elem))
 
   (drawing/redraw!))
-
 
 (defn ^:export init []
   (dev-setup)
