@@ -99,8 +99,7 @@
                  ;; REVIEW: Should I reify and use atoms, or is this good form?
                  ;; More potential to screw up this way, that's for sure.
                  ^:mutable __point
-                 ^:mutable __path-start
-                 ^:mutable __in-stroke?]
+                 ^:mutable __path-start]
   ICanvas
   (clear [_]
     (let [width (.-clientWidth elem)
@@ -110,23 +109,27 @@
     (.transform ctx a b c d e f))
   (set-affine-tx [_ [a b c d e f]]
     (.setTransform ctx a b c d e f))
+
   (pixel [_ style [x y]]
     (with-style ctx style
       (.moveTo ctx x y)
       (.fillRect ctx x y 1 1)))
 
-  (line [_ style from [x2 y2 :as to]]
-    (when-not (empty? style)
-      (set! __path-start nil)
-      (set! __in-stroke? false))
-    (with-stroke ctx from to
-      (with-style ctx style
-        (.lineTo ctx x2 y2)
-        (.stroke ctx))))
+  (line [_ style [x1 y1 :as from] [x2 y2 :as to]]
+    (if (empty? style)
+      (with-stroke ctx from to
+        (.lineTo ctx x2 y2))
+      (do
+        (set! __path-start nil)
+        (with-stroke ctx from to
+            (with-style ctx style
+              ;; (.moveTo ctx x1 y1)
+              (.lineTo ctx x2 y2))))))
 
   (rectangle [_ style [x1 y1] [x2 y2]]
     (with-style ctx style
       (.rect ctx x1 y1 (- x2 x1) (- y2 y1))))
+
   (circle [_ style [x y] r]
     (with-style ctx style
       (.arc ctx x y r 0 (* 2 js/Math.PI)))))
@@ -138,4 +141,4 @@
     ;; REVIEW: Experimental feature. Subjectively makes a small improvement. How
     ;; can I test that empirically?
     (set! (.-imageSmoothingEnabled ctx) true)
-    (->Canvas elem ctx nil nil false)))
+    (->Canvas elem ctx nil nil)))
