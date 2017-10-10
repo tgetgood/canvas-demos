@@ -40,16 +40,14 @@
 ;;;;; Hacky Global Redraw
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defonce current-drawing db/canvas)
-
 (defn redraw! []
-  (draw! @current-drawing @db/window))
+  (draw! @db/current-drawing @db/window))
 
 (def var-table
   {:ex1 #'canvas-demos.examples.ex1/picture})
 
 (defn switch! [sym]
-  (set! current-drawing (get var-table sym))
+  (set! db/current-drawing (get var-table sym))
   (redraw!))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

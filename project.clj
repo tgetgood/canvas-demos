@@ -1,11 +1,6 @@
 (defproject canvas-demos "0.1.0-SNAPSHOT"
-  :dependencies [[eval-soup "1.2.3"]
-                 [fipp "0.6.10"]
-                 [org.clojure/clojure "1.9.0-alpha17"]
-                 [org.clojure/clojurescript "1.9.908"]
-                 [org.clojure/core.async "0.3.443"]
-                 [paren-soup "2.8.13"]
-                 [reagent "0.7.0"]]
+  :dependencies [[org.clojure/clojure "1.9.0-alpha17"]
+                 [org.clojure/clojurescript "1.9.908"]]
 
   :plugins [[lein-cljsbuild "1.1.6" :exclusions [[org.clojure/clojure]]]]
 

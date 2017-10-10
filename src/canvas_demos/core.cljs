@@ -2,9 +2,7 @@
   (:require [canvas-demos.canvas-utils :as canvas]
             [canvas-demos.db :as db]
             [canvas-demos.drawing :as drawing]
-            [canvas-demos.views :as views]
-            [reagent.core :as reagent]
-            [paren-soup.core :as ps]))
+            [canvas-demos.events :as events]))
 
 (defn dev-setup []
   (when goog.DEBUG
@@ -25,26 +23,24 @@
                    (canvas/fullscreen-canvas!)
                    (drawing/redraw!)))))))))
 
-(defn refresh-app!
-  [f]
-  ;; Stop any playing animations
-
-  ;; Redraw on window change
-  (remove-watch db/window :main)
-  (add-watch db/window :main f)
-  (f))
+(defn update-window! []
+  (let [[w h] (canvas/canvas-container-dimensions)]
+    (swap! db/window assoc :width w :height h)))
 
 (defn ^:export mount-root []
+  (canvas/fullscreen-canvas!)
   (watch-resize!)
-  (when (js/document.getElementById "editor")
-    (db/init-editor!))
+  (update-window!)
 
   (drawing/stop-animation!)
   (remove-watch db/window :main)
   (add-watch db/window :main drawing/redraw!)
 
-  (reagent/render [views/main]
-                  (.getElementById js/document "app")))
+  (let [elem (.getElementById js/document "app")]
+    (events/remove-handlers! elem)
+    (events/register-handlers! elem))
+
+  (drawing/redraw!))
 
 
 (defn ^:export init []

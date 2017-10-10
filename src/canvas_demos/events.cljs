@@ -3,7 +3,6 @@
             [canvas-demos.db :as db :refer [window]]
             [clojure.string :as string]))
 
-(def ^:private drag-start (atom nil))
 (def ^:private drag-state (atom nil))
 
 ;;;;; Pan and Zoom logic
@@ -41,70 +40,21 @@
           (fn [[x y]]
             [(- x dx) (- y dy)])))
 
-;;;;; Drawing
-;; Brace yourself
-
-(def shape-hierarcy
-  (-> (make-hierarchy)
-      (derive :fill-rect :rect)
-      (derive :fill-circle :circle)))
-
-(defmulti shape-code (fn [t _ _] t) :hierarchy #'shape-hierarcy)
-
-(defmethod shape-code :line
-  [_ from to]
-  (list 'line {:from from :to to}))
-
-(defmethod shape-code :rect
-  [k from to]
-  (let [w (- (first to) (first from))
-        h (- (second to) (second from))]
-    (list 'rectangle {:bottom-left from
-                      :width w
-                      :height h
-                      :style (if (= k :rect) {} {:fill :black})})))
-
-(defmethod shape-code :circle
-  [k from to]
-  (let [dx (- (first to) (first from))
-        dy (- (second to) (second from))
-        r (js/Math.sqrt (+ (* dx dx) (* dy dy)))]
-    (list 'circle {:centre from
-                   :radius r
-                   :style (if (= k :circle) {} {:fill :black})})))
-
-(defn init-draw [type point]
-  (let [point (c-space->r-space point)]
-    (swap! db/drawings update @db/selected conj
-           (shape-code type point point))))
-
-(defn update-draw [type start current]
-  (let [start (c-space->r-space start)
-        current (c-space->r-space current)
-        c (dec (count (get @db/drawings @db/selected)))]
-    (swap! db/drawings update @db/selected assoc c
-           (shape-code type start current))))
-
 ;;;;; Handlers
 
 (def handlers
   {:mouse-down (fn [e]
-                 (reset! drag-state (c-space-point e))
-                 (reset! drag-start (c-space-point e))
-                 (when-not (= :grab @db/input-mode)
-                   (init-draw @db/input-mode @drag-state)))
+                 (reset! drag-state (c-space-point e)))
    :mouse-up   (fn [e]
-                 (reset! drag-state nil)
-                 (reset! drag-start nil))
+                 (reset! drag-state nil))
+   :click (fn [e] (println (c-space-point e)))
    :mouse-move (fn [e]
                  (when @drag-state
                    (let [q     (c-space-point e)
                          p     @drag-state
                          delta (mapv - p q)]
                      (reset! drag-state q)
-                     (if (= :grab @db/input-mode)
-                       (swap! window update-offset delta)
-                       (update-draw @db/input-mode @drag-start @drag-state)))))
+                     (swap! window update-offset delta))))
    :wheel      (fn [e]
                  (let [p  (c-space-point e)
                        dz (normalise-zoom (js/parseInt (.-deltaY e)))]
