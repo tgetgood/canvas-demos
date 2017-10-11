@@ -1,11 +1,11 @@
 (ns canvas-demos.examples.ex1
   "Demo of declarative drawing and composition"
-  (:require [canvas-demos.shapes.affine :refer [rotate scale translate]]
+  (:require [canvas-demos.shapes.affine :refer [scale translate]]
             [canvas-demos.shapes.base
              :as
              base
              :refer
-             [->Raw circle line rectangle shape with-style]]))
+             [->Raw circle line pixel rectangle shape with-style]]))
 
 (def t
   (->Raw))
@@ -94,8 +94,58 @@
    (line [95 50] [35 95])
    (line [81 135] [120 88])])
 
+(def grid
+  (into #{}
+        (mapcat (fn [x]
+                  (map (fn [y]
+                         [x y])
+                    (range 14)))
+                (range 14))))
+
+(def eye
+  [(map (partial pixel :lightgrey)
+     [[1 3] [2 3]
+      [0 2] [1 2] [2 2] [3 2]
+      [2 1] [3 1]
+      [2 0] [3 0]
+      [1 -1] [2 -1]])
+   (map (partial pixel :blue)
+     [[0 0] [0 1] [1 0] [1 1]])])
+
+(def mask
+  [[1 0] [2 0] [3 0] [4 0]
+   [2 1]
+
+   [6 0] [6 1]
+   [7 0] [7 1]
+
+   [10 0] [11 0] [12 0]
+   [11 1]
+
+   [0 8] [0 9] [0 10] [0 11] [0 12] [0 13] [0 14]
+   [1 11] [1 12] [1 13]
+   [2 12] [2 13]
+   [3 13]
+   [4 13]
+
+   [9 13] [10 13] [11 13] [12 13] [13 13]
+   [11 12] [12 12] [13 12]
+   [12 11] [13 11]
+   [13 10]
+   [13 9]
+   [13 8]])
+
+(def blinky
+  [(map (partial pixel :red)
+     (apply disj grid mask))
+   (translate eye 1 7)
+   (translate eye 7 7)])
+
+
 (def leaf
-  [(with-style {:stroke :lightgreen}
+  [(pixel :orange [-5 -5])
+
+   (with-style {:stroke :lightgreen}
      (with-style {:fill :green}
        leaf-outline)
      stem)
