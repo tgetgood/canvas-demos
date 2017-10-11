@@ -1,9 +1,4 @@
-(ns canvas-demos.shapes.protocols
-  (:refer-clojure :exclude [val]))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;; Drawing
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(ns canvas-demos.shapes.protocols)
 
 (defprotocol Drawable
   (draw [this ctx]))

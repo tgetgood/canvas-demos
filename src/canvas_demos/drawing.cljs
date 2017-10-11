@@ -2,11 +2,14 @@
   (:require [canvas-demos.canvas :as canvas]
             [canvas-demos.canvas-utils :as canvas-utils]
             [canvas-demos.db :as db]
+            [canvas-demos.shapes.affine :as affine]
             [canvas-demos.shapes.protocols :as protocols]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Main Draw
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def ^:dynamic *window* true)
 
 (defn draw!
   "Walks content recursively and draws each shape therein in a preorder
@@ -18,7 +21,12 @@
     ;; Use a fixed Affine tx to normalise coordinates.
     ;; REVIEW: Does resetting this on each frame hurt performance?
     (canvas/set-affine-tx ctx [1 0 0 -1 0 h])
-    (protocols/draw content ctx)))
+    (let [{z :zoom [x y] :offset} @db/window]
+      (protocols/draw (cond-> content
+                        *window* (affine/scale z)
+                        *window* (affine/translate x y))
+                      ctx))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Hacky Global Redraw
