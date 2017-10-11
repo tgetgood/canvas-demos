@@ -26,8 +26,7 @@
 (def filled-messy
   [(with-style {:stroke "rgba(0,0,0,0)"
                 :fill :magenta}
-     triangle)
-   messy-triangle])
+     triangle) messy-triangle])
 
 (def house
   [
@@ -78,6 +77,10 @@
     (map #(apply translate (scale house 0.5 0.5) %)
       [[100 100] [500 100] [700 700] ])]))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Tree
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (def leaf-outline
   [(line [0 0] [100 50])
    (line [100 50] [140 120])
@@ -93,6 +96,18 @@
   [(line [0 0] [140 120])
    (line [95 50] [35 95])
    (line [81 135] [120 88])])
+
+(def leaf
+  [(with-style {:stroke :lightgreen}
+     (with-style {:fill :green}
+       leaf-outline)
+     stem)
+   (with-style {:line-dash [3]}
+     texture)])
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Blinky
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def grid
   (into #{}
@@ -141,13 +156,4 @@
    (translate eye 1 7)
    (translate eye 7 7)])
 
-
-(def leaf
-  [(pixel :orange [-5 -5])
-
-   (with-style {:stroke :lightgreen}
-     (with-style {:fill :green}
-       leaf-outline)
-     stem)
-   (with-style {:line-dash [3]}
-     texture)])
+(def run-blinky! (map #(translate blinky % 0) (range)))
