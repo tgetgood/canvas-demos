@@ -19,11 +19,6 @@
           top-right (mapv + bottom-left [width 0] [0 height])]
       (canvas/rectangle ctx style bottom-left top-right))))
 
-(defrecord Pixel [style p]
-  Drawable
-  (draw [_ ctx]
-    (canvas/pixel ctx style p)))
-
 (defrecord Shape [style content]
   Drawable
   (draw [_ ctx]
@@ -62,6 +57,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; API
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn pixel
+  ([colour x y]
+   (pixel colour [x y]))
+  ([colour p]
+   (Rectangle. {:fill-style colour
+                :line-width 0.1
+                :stroke-style colour}
+               p 1 1)))
 
 (defn with-style [style & shapes]
   (Shape. style shapes))

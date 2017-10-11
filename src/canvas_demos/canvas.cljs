@@ -92,9 +92,6 @@
   (apply-affine-tx [this atx] "Multiply the current tx by atx")
   (set-affine-tx [this atx] "Set the current affine tx matrix")
 
-  (pixel [this style point]
-    "Style a single pixel. Actually a square of width and height 1px whose
-    bottom left corner is the pixel in question")
   (line [this style from to] "Draw a line")
   (rectangle [this style bottom-left top-right]
     "Rectangle defined by bottom left and top right corners")
@@ -124,12 +121,6 @@
     (.transform ctx a b c d e f))
   (set-affine-tx [_ [a b c d e f]]
     (.setTransform ctx a b c d e f))
-
-  (pixel [_ style [x y]]
-    (with-style ctx style
-      (with-single-stroke ctx
-        (.moveTo ctx x y))
-      (.fillRect ctx x y 1 1)))
 
   (line [_ style [x1 y1 :as from] [x2 y2 :as to]]
     (if (empty? style)
