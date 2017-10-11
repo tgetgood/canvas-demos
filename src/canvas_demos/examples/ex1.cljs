@@ -1,6 +1,6 @@
 (ns canvas-demos.examples.ex1
   "Demo of declarative drawing and composition"
-  (:require [canvas-demos.shapes.affine :refer [scale translate]]
+  (:require [canvas-demos.shapes.affine :refer [rotate scale translate]]
             [canvas-demos.shapes.base
              :as
              base
@@ -30,7 +30,8 @@
    messy-triangle])
 
 (def house
-  [(with-style {:line-width 10
+  [
+   (with-style {:line-width 10
                 :fill :yellow}
      (translate triangle 0 300))
    (rectangle {:line-width 5
@@ -43,7 +44,8 @@
 
 
 (def picture
-  (concat
+  (->
+   (concat
     [(circle {:style {:fill {:gradient {:from [200 800]
                                         :to [800 200]
                                         :stops {0 :hotpink
@@ -69,7 +71,7 @@
             :to [1230 1045]})
 
      (map #(apply translate (scale house 0.5 0.5) %)
-            [[100 100] [300 100] [700 400] [1000 1000]])
+       [[100 100] [300 100] [700 400] [1000 1000]])
 
      (line {:style {:stroke-style "red"
                     :line-width 5}
@@ -78,4 +80,7 @@
 
      (line {:style {:line-dash [10 10]}
             :from [0 0]
-            :to [1000 1000]})]))
+            :to [1000 1000]})])
+
+   (translate 400 400)
+   (scale .5)))

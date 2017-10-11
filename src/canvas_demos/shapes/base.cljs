@@ -1,35 +1,33 @@
 (ns canvas-demos.shapes.base
-  (:refer-clojure :exclude [val])
   (:require [canvas-demos.canvas :as canvas :include-macros true]
-            [canvas-demos.shapes.protocols :refer [draw Drawable scalar val vec2]]
-            [canvas-demos.shapes.style :as style]))
+            [canvas-demos.shapes.protocols :refer [draw Drawable]]))
 
 (defrecord Line [style from to]
   Drawable
   (draw [_ ctx]
-    (canvas/line ctx (style/unwrap style) (val from) (val to))))
+    (canvas/line ctx style from to)))
 
 (defrecord Circle [style centre radius]
   Drawable
   (draw [_ ctx]
-    (canvas/circle ctx (style/unwrap style) (val centre) (val radius))))
+    (canvas/circle ctx style centre radius)))
 
 (defrecord Rectangle [style bottom-left width height]
   Drawable
   (draw [_ ctx]
-    (let [bottom-left (val bottom-left)
-          top-right (mapv + bottom-left [(val width) 0] [0 (val height)])]
-      (canvas/rectangle ctx (style/unwrap style) bottom-left top-right))))
+    (let [bottom-left bottom-left
+          top-right (mapv + bottom-left [width 0] [0 height])]
+      (canvas/rectangle ctx style bottom-left top-right))))
 
 (defrecord Pixel [style p]
   Drawable
   (draw [_ ctx]
-    (canvas/pixel ctx (style/unwrap style) p)))
+    (canvas/pixel ctx style p)))
 
 (defrecord Shape [style content]
   Drawable
   (draw [_ ctx]
-    (canvas/with-style (.-ctx ctx) (style/unwrap style)
+    (canvas/with-style (.-ctx ctx) style
       (draw content ctx))))
 
 (defrecord Raw []
@@ -45,7 +43,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn with-style [style & shapes]
-  (Shape. (style/wrap style) shapes))
+  (Shape. style (into [] shapes)))
 
 (defn shape [children]
   (Shape. {} children))
@@ -56,7 +54,7 @@
   ([from to]
    (line {} from to))
   ([style from to]
-   (Line. (style/wrap style) (vec2 from) (vec2 to))))
+   (Line. style from to)))
 
 (defn rectangle
   ([{:keys [style bottom-left width height]}]
@@ -64,10 +62,7 @@
   ([bottom-left width height]
    (rectangle {} bottom-left width height))
   ([style bottom-left width height]
-   (Rectangle. (style/wrap style)
-               (vec2 bottom-left)
-               (scalar width)
-               (scalar height))))
+   (Rectangle. style bottom-left width height)))
 
 (defn circle
   ([{:keys [style centre radius]}]
@@ -75,4 +70,4 @@
   ([centre radius]
    (circle {} centre radius))
   ([style centre radius]
-   (Circle. (style/wrap style) (vec2 centre) (scalar radius))))
+   (Circle. style centre radius)))

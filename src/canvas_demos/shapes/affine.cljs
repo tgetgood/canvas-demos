@@ -5,7 +5,7 @@
   the basic transformers is important."
   (:refer-clojure :exclude [val])
   (:require [canvas-demos.canvas :as canvas]
-            [canvas-demos.shapes.protocols :refer [draw Drawable scalar val]])
+            [canvas-demos.shapes.protocols :refer [draw Drawable]])
   (:require-macros [canvas-demos.shapes.affine :refer [with-origin]]))
 
 (defn det [a b c d]
@@ -20,19 +20,18 @@
         y' (- (+ (* b' x) (* d' y)))]
     [a' b' c' d' x' y']))
 
-(defrecord AffineWrapper [base-shape raw-atx]
+(defrecord AffineWrapper [base-shape atx]
   ;; Draw this shape with the given affine transform. Reset the global state
   ;; after so as to not effect other shapes.
   ;; N.B.: requires serial rendering.
   Drawable
   (draw [_ ctx]
-    (let [atx (-> raw-atx (update 4 val) (update 5 val))]
-      (canvas/apply-affine-tx ctx atx)
-      (draw base-shape ctx)
-      (canvas/apply-affine-tx ctx (invert-atx atx)))))
+    (canvas/apply-affine-tx ctx atx)
+    (draw base-shape ctx)
+    (canvas/apply-affine-tx ctx (invert-atx atx))))
 
 (defn wrap-affine [base-shape atx]
-  (AffineWrapper. base-shape (-> atx (update 4 scalar) (update 5 scalar))))
+  (AffineWrapper. base-shape atx))
 
 (defn deg->rad [d]
   (* js/Math.PI (/ d 180)))
@@ -56,6 +55,8 @@
 (defn scale
   "Returns a copy of shape scaled horizontally by a and verticaly by b. Centre
   is the origin (fixed point) of the transform."
+  ([shape a]
+   (scale shape [0 0] a a))
   ([shape a b] (scale shape [0 0] a b))
   ([shape centre a b]
    (with-origin shape centre

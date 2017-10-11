@@ -6,17 +6,6 @@
 
 (defonce current-drawing (atom #'ex1/house))
 
-(defonce window (atom {:zoom 1 :offset [0 0] :width 0 :height 0}))
-
-;;;;; Window mutations
-
-(defn update-window-dimensions! []
-  (let [[w h] (canvas/canvas-container-dimensions)]
-    (swap! window assoc :width w :height h)))
-
-(defn reset-zoom! []
-  (swap! window assoc :zoom 1 :offset [0 0]))
-
 ;;;; Canvas mutations
 
 (def var-table

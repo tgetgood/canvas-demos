@@ -74,8 +74,3 @@
   (assoc w
          :zoom 350
          :offset [(quot width 2) (quot height 2)]))
-
-(defn draw! []
-  ;; Don't use this. Very expensive and doesn't do anything.
-  ;; This guy is a tangent and should be cut sooner than later.
-  (drawing/draw! (Mandlebrot. @db/window)))

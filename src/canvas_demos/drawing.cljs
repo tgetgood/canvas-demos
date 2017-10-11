@@ -2,20 +2,7 @@
   (:require [canvas-demos.canvas :as canvas]
             [canvas-demos.canvas-utils :as canvas-utils]
             [canvas-demos.db :as db]
-            [canvas-demos.shapes.protocols :as protocols]
-            [clojure.walk :as walk]))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;; Projection
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn project-all [picture window]
-  (walk/prewalk
-   (fn [o]
-     (if (satisfies? protocols/Projectable o)
-       (protocols/project o window)
-       o))
-   picture))
+            [canvas-demos.shapes.protocols :as protocols]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Main Draw
@@ -24,24 +11,21 @@
 (defn draw!
   "Walks content recursively and draws each shape therein in a preorder
   traversal order. Later draws occlude earlier draws."
-  [content & [window]]
-  (let [[_ h]        (canvas-utils/canvas-container-dimensions)
-        ctx          (canvas/context (canvas-utils/canvas-elem))]
+  [content]
+  (let [[_ h] (canvas-utils/canvas-container-dimensions)
+        ctx   (canvas/context (canvas-utils/canvas-elem))]
     (canvas/clear ctx)
     ;; Use a fixed Affine tx to normalise coordinates.
     ;; REVIEW: Does resetting this on each frame hurt performance?
     (canvas/set-affine-tx ctx [1 0 0 -1 0 h])
-    (protocols/draw (if window
-            (project-all content window)
-            content)
-          ctx)))
+    (protocols/draw content ctx)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Hacky Global Redraw
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn redraw! []
-  (draw! @@db/current-drawing @db/window))
+  (draw! @@db/current-drawing))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Animation
@@ -67,21 +51,21 @@
 
 (defonce ^:private animation-frames (atom nil))
 
-(defn- animate* [windowed?]
+(defn- animate* []
   (count-frame)
   (let [[frame & more] @animation-frames]
     (when frame
-      (draw! frame (when windowed? @db/window))
+      (draw! frame)
       (swap! animation-frames rest)
-      (raf #(animate* windowed?)))))
+      (raf #(animate*)))))
 
-(defn animate! [frames & [windowed?]]
+(defn animate! [frames]
   ;; HACK: By waiting 2 animation frames, I can make sure that a nil
   ;; animation-frames atom actually has time to kill all running animations
   ;; before this resets it.
   (raf #(raf (fn []
                (reset! animation-frames frames)
-               (animate* windowed?)))))
+               (animate*)))))
 
 (defn stop-animation! []
   (reset! animation-frames nil))

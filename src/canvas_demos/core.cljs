@@ -1,8 +1,7 @@
 (ns canvas-demos.core
   (:require [canvas-demos.canvas-utils :as canvas]
             [canvas-demos.db :as db]
-            [canvas-demos.drawing :as drawing]
-            [canvas-demos.events :as events]))
+            [canvas-demos.drawing :as drawing]))
 
 (defn dev-setup []
   (when goog.DEBUG
@@ -18,27 +17,17 @@
                js/window
                (fn []
                  (when (compare-and-set! running true false)
-                   (let [[w h :as dim] (canvas/canvas-container-dimensions)]
-                     (swap! db/window assoc :width w :height h))
                    (canvas/fullscreen-canvas!)
                    (drawing/redraw!)))))))))
 
 (defn ^:export mount-root []
-  (canvas/fullscreen-canvas!)
   (watch-resize!)
-  (db/update-window-dimensions!)
 
   (drawing/stop-animation!)
-  (remove-watch db/window :main)
-  (add-watch db/window :main drawing/redraw!)
-
   (remove-watch db/current-drawing :main)
   (add-watch db/current-drawing :main drawing/redraw!)
 
-  (let [elem (.getElementById js/document "app")]
-    (events/remove-handlers! elem)
-    (events/register-handlers! elem))
-
+  (canvas/fullscreen-canvas!)
   (drawing/redraw!))
 
 (defn ^:export init []
