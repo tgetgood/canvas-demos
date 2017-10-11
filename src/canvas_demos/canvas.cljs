@@ -85,6 +85,10 @@
   ;; take that responsibility head on.
   (clear [this] "Restore the canvas to its initial state.")
 
+  (clear-state! [this] "Wipe the path state")
+  (get-state [this] "Returns the Current path state")
+  (set-state! [this state] "Set the path state")
+
   (apply-affine-tx [this atx] "Multiply the current tx by atx")
   (set-affine-tx [this atx] "Set the current affine tx matrix")
 
@@ -106,6 +110,16 @@
     (let [width (.-clientWidth elem)
           height (.-clientHeight elem)]
       (.clearRect ctx 0 0 width height)))
+
+  (get-state [_]
+    [__point __path-start])
+  (clear-state! [_]
+    (set! __point nil)
+    (set! __path-start nil))
+  (set-state! [_ [p s]]
+    (set! __point p)
+    (set! __path-start s))
+
   (apply-affine-tx [_ [a b c d e f]]
     (.transform ctx a b c d e f))
   (set-affine-tx [_ [a b c d e f]]

@@ -10,19 +10,4 @@
 
   nil
   (draw [_ _]
-    (.error js/console "Can't draw a nil."))
-
-  PersistentVector
-  (draw [this ctx]
-    (doseq [s this]
-      (draw s ctx)))
-
-  LazySeq
-  (draw [this ctx]
-    (doseq [s this]
-      (draw s ctx)))
-
-  List
-  (draw [this ctx]
-    (doseq [s this]
-      (draw s ctx))))
+    (.error js/console "Can't draw a nil.")))

@@ -28,8 +28,14 @@
   Drawable
   (draw [_ ctx]
     (canvas/with-style (.-ctx ctx) style
-      (draw content ctx))))
+      ;; HACK: This state juggling can't be the right way to do this.
+      (let [state (canvas/get-state ctx)]
+        (canvas/clear-state! ctx)
+        (doseq [shape content]
+          (draw shape ctx))
+        (canvas/set-state! ctx state)))))
 
+;; Debugging record for comparing against direct canvas manipulations.
 (defrecord Raw []
   Drawable
   (draw [_ ctx]
@@ -38,12 +44,27 @@
       (.lineTo 400 400)
       (.stroke))))
 
+;; Treat seq types as implicit shapes.
+
+(extend-protocol Drawable
+  PersistentVector
+  (draw [this ctx]
+    (draw (Shape. {} this) ctx))
+
+  LazySeq
+  (draw [this ctx]
+    (draw (Shape. {} this) ctx))
+
+  List
+  (draw [this ctx]
+    (draw (Shape. {} this) ctx)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; API
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn with-style [style & shapes]
-  (Shape. style (into [] shapes)))
+  (Shape. style shapes))
 
 (defn shape [children]
   (Shape. {} children))
