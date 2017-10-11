@@ -3,7 +3,8 @@
   setters are replaced by a style map. As compatible with manual canvas
   manipulation as manual canvas manipulation is with itself."
   (:require [clojure.string :as string])
-  (:require-macros [canvas-demos.canvas :refer [with-stroke with-style]]))
+  (:require-macros [canvas-demos.canvas :refer
+                    [with-single-stroke with-connected-stroke with-style]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Stateless Styling
@@ -112,27 +113,29 @@
 
   (pixel [_ style [x y]]
     (with-style ctx style
-      (.moveTo ctx x y)
+      (with-single-stroke ctx
+        (.moveTo ctx x y))
       (.fillRect ctx x y 1 1)))
 
   (line [_ style [x1 y1 :as from] [x2 y2 :as to]]
     (if (empty? style)
-      (with-stroke ctx from to
+      (with-connected-stroke ctx from to
         (.lineTo ctx x2 y2))
-      (do
-        (set! __path-start nil)
-        (with-stroke ctx from to
-            (with-style ctx style
-              ;; (.moveTo ctx x1 y1)
-              (.lineTo ctx x2 y2))))))
+      (with-style ctx style
+        (with-single-stroke ctx
+          (.moveTo ctx x1 y1)
+          (.lineTo ctx x2 y2)
+          (set! __path-start nil)))))
 
   (rectangle [_ style [x1 y1] [x2 y2]]
     (with-style ctx style
-      (.rect ctx x1 y1 (- x2 x1) (- y2 y1))))
+      (with-single-stroke ctx
+        (.rect ctx x1 y1 (- x2 x1) (- y2 y1)))))
 
   (circle [_ style [x y] r]
     (with-style ctx style
-      (.arc ctx x y r 0 (* 2 js/Math.PI)))))
+      (with-single-stroke ctx
+        (.arc ctx x y r 0 (* 2 js/Math.PI))))))
 
 (defn context
   "Returns a Canvas object wrapping the given HTML canvas dom element."

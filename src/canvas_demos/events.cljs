@@ -47,7 +47,6 @@
                  (reset! drag-state (c-space-point e)))
    :mouse-up   (fn [e]
                  (reset! drag-state nil))
-   :click (fn [e] (println (c-space-point e)))
    :mouse-move (fn [e]
                  (when @drag-state
                    (let [q     (c-space-point e)

@@ -32,6 +32,14 @@
     (canvas/with-style (.-ctx ctx) (style/unwrap style)
       (draw content ctx))))
 
+(defrecord Raw []
+  Drawable
+  (draw [_ ctx]
+    (doto (.-ctx ctx)
+      (.moveTo 100 100)
+      (.lineTo 400 400)
+      (.stroke))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; API
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
