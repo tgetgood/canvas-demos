@@ -38,14 +38,11 @@
                :fill :blue}
               [0 0] 400 295)])
 
-
-(def th
-  (translate (scale house 0.3 0.3) 100 100))
-
-
 (def picture
   (->
    (concat
+
+
     [(circle {:style {:fill {:gradient {:from [200 800]
                                         :to [800 200]
                                         :stops {0 :hotpink
@@ -70,8 +67,7 @@
             :from [1000 1000]
             :to [1230 1045]})
 
-     (map #(apply translate (scale house 0.5 0.5) %)
-       [[100 100] [300 100] [700 400] [1000 1000]])
+
 
      (line {:style {:stroke-style "red"
                     :line-width 5}
@@ -80,7 +76,42 @@
 
      (line {:style {:line-dash [10 10]}
             :from [0 0]
-            :to [1000 1000]})])
+            :to [1000 1000]})
 
-   (translate 400 400)
-   (scale .5)))
+     (map #(apply translate (scale house 0.5 0.5) %)
+       [[100 100] [500 100] [700 700] ])])
+
+   (translate 200 200)
+   (scale 0.8)
+   ))
+
+(def leaf-outline
+  [(line [0 0] [100 50])
+   (line [100 50] [140 120])
+   (line [140 120] [80 140])
+   (line [80 140] [30 100])
+   (line [30 100] [0 0])])
+
+(def stem
+  [(line {:line-width 10
+          :stroke :lightgreen}
+     [135 120] [190 170])])
+
+(def texture
+  [(line [0 0] [140 120])
+   (line [140 120] [700 400])
+   ])
+
+(def leaf
+  [texture
+
+   (with-style {:stroke :lightgreen
+                :fill :lightgreen}
+     leaf-outline)
+
+   ])
+
+(def leaf-view
+  (-> leaf
+      (scale 2)
+      (translate 200 200)))

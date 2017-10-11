@@ -20,3 +20,6 @@
 
 (defn c-seq []
   (cfn (rand-int 1000) (rand-int 1000) (rand-int 100)))
+
+(defn circles [n]
+  (partition n (repeatedly (fn [] (take n (c-seq))))))

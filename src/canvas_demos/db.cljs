@@ -11,7 +11,7 @@
 (def var-table
   {:ex1 #'ex1/picture
    :house #'ex1/house
-   :test #'ex1/th})
+   })
 
 (defn switch! [sym]
   (reset! current-drawing (get var-table sym)))
