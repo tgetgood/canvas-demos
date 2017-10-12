@@ -5,7 +5,7 @@
              :as
              base
              :refer
-             [->Raw circle line pixel rectangle shape with-style]]))
+             [->Raw arc circle line pixel rectangle shape with-style]]))
 
 (def t
   (->Raw))
@@ -127,8 +127,8 @@
    (map (partial pixel :blue)
      [[0 0] [0 1] [1 0] [1 1]])])
 
-(def mask
-  [[1 0] [2 0] [3 0] [4 0]
+(def masked
+  [[1 0] [2 0] [3 0]
    [2 1]
 
    [6 0] [6 1]
@@ -152,8 +152,39 @@
 
 (def blinky
   [(map (partial pixel :red)
-     (apply disj grid mask))
+     (apply disj grid masked))
    (translate eye 1 7)
    (translate eye 7 7)])
 
-(def run-blinky! (map #(translate blinky % 0) (range)))
+(def run-blinky (map #(translate blinky (- % (mod % 5) ) 0) (range)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Pacman
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn rad [d] (* d js/Math.PI (/ 1 180)))
+
+(defn pacman* [angle]
+  (let [c (* 10 (js/Math.cos (rad angle)))
+        s (* 10 (js/Math.sin (rad angle)))]
+    [(with-style {:fill :yellow}
+       (arc [0 0] 10 angle (- angle))
+       (line [c (- s)] [0 0])
+       (line [0 0] [c s]))
+     (circle {:fill :black} [-1 6] 1)]))
+
+(def pacman-open
+  (map pacman* (range 1 60)))
+
+(def chomp (mapcat #(concat pacman-open (reverse pacman-open)) (range)) )
+
+(def chomp-run (map-indexed (fn [i s] (translate s i 0)) chomp))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Animation Compositing
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def chase
+  (partition 2 (interleave
+                chomp-run
+                (map #(translate % 30 -10) run-blinky))))

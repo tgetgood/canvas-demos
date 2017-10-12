@@ -78,7 +78,7 @@
 (defn stop-animation! []
   (reset! animation-frames nil))
 
-(defn animating?
+(defn running?
   "Returns true if an animation is currently being played."
   []
   (boolean @animation-frames))
