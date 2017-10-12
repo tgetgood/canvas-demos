@@ -59,9 +59,9 @@
    (pixel colour [x y]))
   ([colour p]
    (Rectangle. {:fill-style colour
-                :line-width 0.1
+                :line-width 0.05
                 :stroke-style colour}
-               p 1 1)))
+               p .99 .99)))
 
 (defn with-style [style & shapes]
   (Shape. style shapes))
