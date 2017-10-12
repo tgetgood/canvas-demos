@@ -184,7 +184,13 @@
 ;;;;; Animation Compositing
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn composite-animation
+  "Returns the composite of the given animations streams. Later streams occlude
+  earlier in each frame."
+  [& animations]
+  (partition (count animations) (apply interleave animations)))
+
 (def chase
-  (partition 2 (interleave
-                chomp-run
-                (map #(translate % 30 -10) run-blinky))))
+  (composite-animation
+   chomp-run
+   (map #(translate % 30 -10) run-blinky)))
