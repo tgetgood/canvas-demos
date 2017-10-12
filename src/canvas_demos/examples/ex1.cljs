@@ -5,23 +5,18 @@
              :as
              base
              :refer
-             [->Raw arc circle line pixel rectangle shape with-style]]))
-
-(def t
-  (->Raw))
+             [arc circle line pixel rectangle with-style]]))
 
 (def messy-triangle
-  (shape
-   [(line {:stroke :cyan} [0 0] [400 0])
-    (line {:line-width 1} [400 0] [200 200])
-    (line  {:stroke :red
-            :line-width 6}  [200 200] [0 0])]))
+  [(line {:stroke :cyan} [0 0] [400 0])
+   (line {:line-width 1} [400 0] [200 200])
+   (line  {:stroke :red
+           :line-width 6}  [200 200] [0 0])])
 
 (def triangle
-  (shape
-   [(line [0 0] [400 0])
-    (line [400 0] [200 200])
-    (line [200 200] [0 0])]))
+  [(line [0 0] [400 0])
+   (line [400 0] [200 200])
+   (line [200 200] [0 0])])
 
 (def filled-messy
   [(with-style {:stroke "rgba(0,0,0,0)"
@@ -184,13 +179,13 @@
 ;;;;; Animation Compositing
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn composite-animation
+(defn composite
   "Returns the composite of the given animations streams. Later streams occlude
   earlier in each frame."
   [& animations]
   (partition (count animations) (apply interleave animations)))
 
 (def chase
-  (composite-animation
+  (composite
    chomp-run
    (map #(translate % 30 -10) run-blinky)))

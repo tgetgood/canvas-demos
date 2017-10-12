@@ -6,6 +6,8 @@
 
 (defonce current-drawing (atom #'ex1/house))
 
+(defonce ^:dynamic *redraw* true)
+
 (defonce window (atom {:zoom 1 :offset [0 0] :width 0 :height 0}))
 
 ;;;;; Window mutations

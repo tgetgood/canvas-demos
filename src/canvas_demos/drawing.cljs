@@ -9,8 +9,6 @@
 ;;;;; Main Draw
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(def ^:dynamic *window* true)
-
 (defn draw!
   "Walks content recursively and draws each shape therein in a preorder
   traversal order. Later draws occlude earlier draws."
@@ -22,11 +20,10 @@
     ;; REVIEW: Does resetting this on each frame hurt performance?
     (canvas/set-affine-tx ctx [1 0 0 -1 0 h])
     (let [{z :zoom [x y] :offset} @db/window]
-      (protocols/draw (cond-> content
-                        *window* (affine/scale z)
-                        *window* (affine/translate x y))
+      (protocols/draw (-> content
+                          (affine/scale z)
+                          (affine/translate x y))
                       ctx))))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Hacky Global Redraw
@@ -34,6 +31,15 @@
 
 (defn redraw! []
   (draw! @@db/current-drawing))
+
+;;;;; Helpers?
+
+(defn freeze! []
+  (set! db/*redraw* false))
+
+(defn thaw! []
+  (set! db/*redraw* true)
+  (redraw!))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Animation

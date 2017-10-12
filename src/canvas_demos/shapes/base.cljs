@@ -35,15 +35,6 @@
           (draw shape ctx))
         (canvas/set-state! ctx state)))))
 
-;; Debugging record for comparing against direct canvas manipulations.
-(defrecord Raw []
-  Drawable
-  (draw [_ ctx]
-    (doto (.-ctx ctx)
-      (.moveTo 100 100)
-      (.lineTo 400 400)
-      (.stroke))))
-
 ;; Treat seq types as implicit shapes.
 
 (extend-protocol Drawable
@@ -74,9 +65,6 @@
 
 (defn with-style [style & shapes]
   (Shape. style shapes))
-
-(defn shape [children]
-  (Shape. {} children))
 
 (defn line
   ([{:keys [style from to]}]
