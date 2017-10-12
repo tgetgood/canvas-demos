@@ -95,6 +95,7 @@
   (line [this style from to] "Draw a line")
   (rectangle [this style bottom-left top-right]
     "Rectangle defined by bottom left and top right corners")
+  (arc [this style centre radius from to])
   (circle [this style centre radius] "Draws a circle"))
 
 (deftype Canvas [elem ctx
@@ -136,6 +137,21 @@
     (with-style ctx style
       (with-single-stroke ctx
         (.rect ctx x1 y1 (- x2 x1) (- y2 y1)))))
+
+  (arc [_ style [x y] r from to]
+    (let [rad (fn [d] (* d js/Math.PI (/ 1 180)))
+          from (rad from)
+          to (rad to)]
+      (if (empty? style)
+        (let [c1 (* r (js/Math.cos from))
+              s1 (* r (js/Math.sin from))
+              c2 (* r (js/Math.cos to))
+              s2 (* r (js/Math.sin to))]
+          (with-connected-stroke ctx [(+ x c1) (+ y s1)] [(+ x c2) (+ y s2)]
+            (.arc ctx x y r from to)))
+        (with-style ctx style
+          (with-single-stroke ctx
+            (.arc ctx x y r from to))))))
 
   (circle [_ style [x y] r]
     (with-style ctx style

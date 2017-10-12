@@ -24,6 +24,7 @@
      ~@body
 
      (set! ~'__point ~to)
+
      (when (= ~'__point ~'__path-start)
        (.closePath ~ctx)
        (set! ~'__path-start nil))

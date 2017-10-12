@@ -19,6 +19,11 @@
           top-right (mapv + bottom-left [width 0] [0 height])]
       (canvas/rectangle ctx style bottom-left top-right))))
 
+(defrecord Arc [style centre radius from to]
+  Drawable
+  (draw [_ ctx]
+    (canvas/arc ctx style centre radius from to)))
+
 (defrecord Shape [style content]
   Drawable
   (draw [_ ctx]
@@ -96,3 +101,11 @@
    (circle {} centre radius))
   ([style centre radius]
    (Circle. style centre radius)))
+
+(defn arc
+  ([{:keys [style centre radius from to]}]
+   (arc style centre radius from to))
+  ([centre radius from to]
+   (arc {} centre radius from to))
+  ([style centre radius from to]
+   (Arc. style centre radius from to)))
