@@ -1,7 +1,7 @@
 (ns canvas-demos.examples.ex3
   "Demo of shape manipulation via affine transformations"
   (:require [canvas-demos.shapes.affine :refer [scale translate]]
-            [canvas-demos.shapes.base :refer [rectangle with-style]]))
+            [canvas-demos.shapes.base :refer [line rectangle textline with-style]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Example Data
@@ -194,39 +194,60 @@
 ;;;;; Histogram
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(def bar
-  (rectangle [0 0] 50 100))
+(def grid-lines
+  (with-style {:stroke :darkgrey}
+    [(line [10 500] [10 0])
+     (line [0 0] [480 0])
+     (textline "50%" [-20 500])
+     (line [0 500] [480 500])
+     (textline "40%" [-20 400])
+     (line [0 400] [480 400])
+     (textline "30%" [-20 300])
+     (line [0 300] [480 300])
+     (textline "20%" [-20 200])
+     (line [0 200] [480 200])
+     (textline "10%" [-20 100])
+     (line [0 100] [480 100])]))
 
-(defn histogram [results]
-  (map-indexed (fn [i [k v]]
-                 (-> (with-style {:fill (get colours k :magenta)
-                                  :stroke "rgba(0,0,0,0)"}
-                       bar)
-                     (scale 1 v)
-                     (translate (* i 60) 0)))
-               (->> results
-                    (sum-tail 8)
-                    (sort-by second)
-                    reverse)))
+(def bar
+  (rectangle [0 0] 50 1000))
+
+(defn histogram [[year results]]
+  [(translate grid-lines -20 0)
+   (scale (textline (name year) [200 -40]) [200 -40] 3 3)
+   (map-indexed (fn [i [k v]]
+                  (-> (with-style {:fill (get colours k :magenta)
+                                   :stroke "rgba(0,0,0,0)"}
+                        bar)
+                      (scale 1 v)
+                      (translate (* i 60) 0)))
+                (->> results
+                     (sum-tail 8)
+                     (sort-by second)
+                     reverse))])
+
+(defn summary [interpret]
+  (->> election-data
+       (map (fn [[k v]] [k (interpret v)]))
+        (map histogram)
+        (map-indexed (fn [i s] (translate s (* i 550) 0)))))
 
 (def election
-  [(-> (->> election-data
-            vals
-            (map proportions)
-            (map histogram)
-            (map-indexed (fn [i s] (translate s (* i 500) 0))))
-       (scale 1 10))
-   (-> (->> election-data
-            vals
-            (map simple-proportions)
-            (map histogram)
-            (map-indexed (fn [i s] (translate s (* i 500) 0))))
-       (scale 1 10)
-       (translate 0 500))
-   (-> (->> election-data
-            vals
-            (map seat-proportions)
-            (map histogram)
-            (map-indexed (fn [i s] (translate s (* i 500) 0))))
-       (scale 1 10)
-       (translate 0 1000))])
+  [(summary seat-proportions)
+   (-> (textline "Commons")
+       (scale 4)
+       (translate -300 250))
+   (-> (summary simple-proportions)
+       (translate 0 600))
+   (-> (textline "Proportional")
+       (scale 4)
+       (translate -300 850))
+   (-> (summary proportions)
+       (translate 0 1200))
+   (-> (textline "With Abstentions" )
+       (scale 4)
+       (translate -350 1450))])
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Pies
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
