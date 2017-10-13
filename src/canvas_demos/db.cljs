@@ -1,7 +1,8 @@
 (ns canvas-demos.db
   (:require [canvas-demos.canvas-utils :as canvas]
             [canvas-demos.examples.ex1 :as ex1]
-            [canvas-demos.examples.ex3 :as ex3]))
+            [canvas-demos.examples.ex3 :as ex3]
+            [canvas-demos.examples.stateful :as stateful]))
 
 ;;;;; State
 
@@ -26,7 +27,8 @@
   {:ex1 #'ex1/picture
    :house #'ex1/house
    :blinky #'ex1/blinky
-   :election #'ex3/election})
+   :election #'ex3/election
+   :state #'stateful/demo})
 
 (defn switch! [sym]
   (reset! current-drawing (get var-table sym)))
