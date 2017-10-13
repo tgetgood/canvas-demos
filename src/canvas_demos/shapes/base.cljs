@@ -1,6 +1,16 @@
 (ns canvas-demos.shapes.base
   (:require [canvas-demos.canvas :as canvas :include-macros true]
+            [canvas-demos.shapes.affine :as affine]
             [canvas-demos.shapes.protocols :refer [draw Drawable]]))
+
+;;;;; Text
+
+(defrecord TextLine [style text position]
+  Drawable
+  (draw [_ ctx]
+       (canvas/text ctx style text position)))
+
+;;;;; Shapes
 
 (defrecord Line [style from to]
   Drawable
@@ -54,6 +64,11 @@
 ;;;;; API
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn with-style
+  "Wraps shapes in a container shape with the given style applied to it."
+  [style & shapes]
+  (Shape. style shapes))
+
 (defn pixel
   ([colour x y]
    (pixel colour [x y]))
@@ -62,9 +77,6 @@
                 :line-width 0.05
                 :stroke-style colour}
                p .99 .99)))
-
-(defn with-style [style & shapes]
-  (Shape. style shapes))
 
 (defn line
   ([{:keys [style from to]}]
@@ -97,3 +109,15 @@
    (arc {} centre radius from to))
   ([style centre radius from to]
    (Arc. style centre radius from to)))
+
+;;;;; Text
+
+(defn textline
+  ([text]
+   (textline {} text [0 0]))
+  ([text position]
+   (textline {} text position))
+  ([style text [x y :as position]]
+   (affine/reflect
+    (TextLine. style text position)
+    [x y] [1 0])))

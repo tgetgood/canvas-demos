@@ -9,9 +9,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Stateless Styling
 ;;
-;; TODO: Shadows
-;; TODO: Text
-;; TODO: ImageData (pixel manipulation)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def style-abbrevs
@@ -74,15 +71,14 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Canvas Wrapper
+;;
+;; TODO: Text
+;; Single line works, still need formatted blocks
+;; TODO: Shadows
+;; TODO: ImageData (pixel manipulation)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defprotocol ICanvas
-  ;; TODO: Presumably I should wrap the entire canvas API.
-  ;;
-  ;; Well, that's an interesting question. The canvas API doesn't have circles,
-  ;; but I want a circle. It has rectangles, but I can make rectangles from
-  ;; lines. I am designing a new language whether I like it or not, so let's
-  ;; take that responsibility head on.
   (clear [this] "Restore the canvas to its initial state.")
 
   (clear-state! [this] "Wipe the path state")
@@ -92,11 +88,13 @@
   (apply-affine-tx [this atx] "Multiply the current tx by atx")
   (set-affine-tx [this atx] "Set the current affine tx matrix")
 
+  (measure-text [this text] "Returns text metric object for text")
+  (text [this style text position] "Draw text at position")
   (line [this style from to] "Draw a line")
   (rectangle [this style bottom-left top-right]
     "Rectangle defined by bottom left and top right corners")
   (arc [this style centre radius from to])
-  (circle [this style centre radius] "Draws a circle"))
+  (circle [this style centre radius] "Draw a circle"))
 
 (deftype Canvas [elem ctx
                  ;; REVIEW: Should I reify and use atoms, or is this good form?
@@ -122,6 +120,12 @@
     (.transform ctx a b c d e f))
   (set-affine-tx [_ [a b c d e f]]
     (.setTransform ctx a b c d e f))
+
+  (measure-text [_ text]
+    (.measureText ctx))
+  (text [_ style text [x y]]
+    (with-style ctx style
+      (.fillText ctx text x y)))
 
   (line [_ style [x1 y1 :as from] [x2 y2 :as to]]
     (if (empty? style)
