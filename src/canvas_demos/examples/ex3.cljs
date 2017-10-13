@@ -1,7 +1,7 @@
 (ns canvas-demos.examples.ex3
   "Demo of shape manipulation via affine transformations"
   (:require [canvas-demos.shapes.affine :refer [scale translate]]
-            [canvas-demos.shapes.base :refer [rectangle]]))
+            [canvas-demos.shapes.base :refer [rectangle with-style]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Example Data
@@ -127,25 +127,46 @@
                     "Independent"    1}}})
 
 
+(def colours
+  {"Conservative"             "#6495ED"
+   "Liberal"                  "#EA6D6A"
+   "Bloc Québécois"           "#87CEFA"
+   "Bloc Qu�b�cois"           "#87CEFA"
+   "NDP-New Democratic Party" "#F4A460"
+   "N.D.P."                   "#F4A460"
+   "Green Party"              "#99C955"
+   "Independent"              "purple"
+   "Abstentions"              "black"
+   "Spoilt"                   "red"
+   "Other"                    "grey"})
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;; Visualisation
+;;;;; Data Cleaning
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 (defn spoilt-ballots [stats]
   (or (get stats "Rejected Ballots/Bulletins rejetés")
       (get stats "Rejected Ballots/Bulletins rejet�s")))
 
+
 (defn electors [stats]
   (or (get stats "Electors/Électeurs") (get stats "Electors/�lecteurs")))
+
 
 (defn cast-ballots [stats]
   (get stats "Total Votes/Total des votes"))
 
-(defn simple-proportions [{:keys [results stats]}]
+(defn simple-proportions
+  "Converts raw election numbers into percentages of the vote per party."
+  [{:keys [results stats]}]
   (let [total (cast-ballots stats)]
     (into {} (map (fn [[k v]] [k (/ v total)]) results))))
 
-(defn proportions [{:keys [results stats] :as data} count-abstentions?]
+
+(defn proportions
+  "Same as simple-proportions, but also counts abstentions and spoilt ballots."
+  [{:keys [results stats] :as data}]
   (let [cast (cast-ballots stats)
         simple-results (simple-proportions data)
         total (electors stats)
@@ -154,8 +175,58 @@
            "Spoilt" (/ (spoilt-ballots stats) total)}
           (map (fn [[k v]] [k (* v ratio)]) simple-results))))
 
+
+(defn sum-tail
+  "Take the top n - 1 results, and sum the tail into an Other bucket."
+  [n results]
+  (let [[high low] (->> results
+                        (sort-by second)
+                        reverse
+                        (split-at (dec n)))]
+    (into {"Other" (reduce + (map second low))}
+          high)))
+
+(defn seat-proportions [{:keys [seats]}]
+  (let [total (reduce + (vals seats))]
+    (into {} (map (fn [[k v]] [k (/ v total)]) seats))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Histogram
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (def bar
-  (rectangle [0 0] 50 200))
+  (rectangle [0 0] 50 100))
+
+(defn histogram [results]
+  (map-indexed (fn [i [k v]]
+                 (-> (with-style {:fill (get colours k :magenta)
+                                  :stroke "rgba(0,0,0,0)"}
+                       bar)
+                     (scale 1 v)
+                     (translate (* i 60) 0)))
+               (->> results
+                    (sum-tail 8)
+                    (sort-by second)
+                    reverse)))
 
 (def election
-  )
+  [(-> (->> election-data
+            vals
+            (map proportions)
+            (map histogram)
+            (map-indexed (fn [i s] (translate s (* i 500) 0))))
+       (scale 1 10))
+   (-> (->> election-data
+            vals
+            (map simple-proportions)
+            (map histogram)
+            (map-indexed (fn [i s] (translate s (* i 500) 0))))
+       (scale 1 10)
+       (translate 0 500))
+   (-> (->> election-data
+            vals
+            (map seat-proportions)
+            (map histogram)
+            (map-indexed (fn [i s] (translate s (* i 500) 0))))
+       (scale 1 10)
+       (translate 0 1000))])
