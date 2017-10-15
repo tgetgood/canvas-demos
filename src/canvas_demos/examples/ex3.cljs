@@ -194,19 +194,21 @@
 ;;;;; Histogram
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(def ts {:font "16px serif"})
+
 (def grid-lines
   (with-style {:stroke :darkgrey}
     [(line [10 500] [10 0])
      (line [0 0] [480 0])
-     (textline "50%" [-20 500])
+     (textline ts "50%" [-30 500])
      (line [0 500] [480 500])
-     (textline "40%" [-20 400])
+     (textline ts "40%" [-30 400])
      (line [0 400] [480 400])
-     (textline "30%" [-20 300])
+     (textline ts "30%" [-30 300])
      (line [0 300] [480 300])
-     (textline "20%" [-20 200])
+     (textline ts "20%" [-30 200])
      (line [0 200] [480 200])
-     (textline "10%" [-20 100])
+     (textline ts "10%" [-30 100])
      (line [0 100] [480 100])]))
 
 (def bar
