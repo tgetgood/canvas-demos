@@ -81,10 +81,6 @@
 (defprotocol ICanvas
   (clear [this] "Restore the canvas to its initial state.")
 
-  (clear-state! [this] "Wipe the path state")
-  (get-state [this] "Returns the Current path state")
-  (set-state! [this state] "Set the path state")
-
   (apply-affine-tx [this atx] "Multiply the current tx by atx")
   (set-affine-tx [this atx] "Set the current affine tx matrix")
 
@@ -99,22 +95,12 @@
 (deftype Canvas [elem ctx
                  ;; REVIEW: Should I reify and use atoms, or is this good form?
                  ;; More potential to screw up this way, that's for sure.
-                 ^:mutable __point
-                 ^:mutable __path-start]
+                 ^:mutable __point]
   ICanvas
   (clear [_]
     (let [width (.-clientWidth elem)
           height (.-clientHeight elem)]
       (.clearRect ctx 0 0 width height)))
-
-  (get-state [_]
-    [__point __path-start])
-  (clear-state! [_]
-    (set! __point nil)
-    (set! __path-start nil))
-  (set-state! [_ [p s]]
-    (set! __point p)
-    (set! __path-start s))
 
   (apply-affine-tx [_ [a b c d e f]]
     (.transform ctx a b c d e f))
@@ -128,14 +114,9 @@
       (.fillText ctx text x y)))
 
   (line [_ style [x1 y1 :as from] [x2 y2 :as to]]
-    (if (empty? style)
+    (with-style ctx style
       (with-connected-stroke ctx from to
-        (.lineTo ctx x2 y2))
-      (with-style ctx style
-        (with-single-stroke ctx
-          (.moveTo ctx x1 y1)
-          (.lineTo ctx x2 y2)
-          (set! __path-start nil)))))
+        (.lineTo ctx x2 y2))))
 
   (rectangle [_ style [x1 y1] [x2 y2]]
     (with-style ctx style
@@ -146,15 +127,12 @@
     (let [rad (fn [d] (* d js/Math.PI (/ 1 180)))
           from (rad from)
           to (rad to)]
-      (if (empty? style)
-        (let [c1 (* r (js/Math.cos from))
-              s1 (* r (js/Math.sin from))
-              c2 (* r (js/Math.cos to))
-              s2 (* r (js/Math.sin to))]
-          (with-connected-stroke ctx [(+ x c1) (+ y s1)] [(+ x c2) (+ y s2)]
-            (.arc ctx x y r from to)))
+      (let [c1 (* r (js/Math.cos from))
+            s1 (* r (js/Math.sin from))
+            c2 (* r (js/Math.cos to))
+            s2 (* r (js/Math.sin to))]
         (with-style ctx style
-          (with-single-stroke ctx
+          (with-connected-stroke ctx [(+ x c1) (+ y s1)] [(+ x c2) (+ y s2)]
             (.arc ctx x y r from to))))))
 
   (circle [_ style [x y] r]
@@ -169,4 +147,4 @@
     ;; REVIEW: Experimental feature. Subjectively makes a small improvement. How
     ;; can I test that empirically?
     (set! (.-imageSmoothingEnabled ctx) true)
-    (->Canvas elem ctx nil nil)))
+    (->Canvas elem ctx nil)))

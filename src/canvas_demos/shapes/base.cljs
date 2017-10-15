@@ -39,11 +39,8 @@
   (draw [_ ctx]
     (canvas/with-style (.-ctx ctx) style
       ;; HACK: This state juggling can't be the right way to do this.
-      (let [state (canvas/get-state ctx)]
-        (canvas/clear-state! ctx)
-        (doseq [shape content]
-          (draw shape ctx))
-        (canvas/set-state! ctx state)))))
+      (doseq [shape content]
+        (draw shape ctx)))))
 
 ;; Treat seq types as implicit shapes.
 
