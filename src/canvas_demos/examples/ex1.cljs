@@ -91,14 +91,26 @@
   [(line [0 0] [140 120])
    (line [95 50] [35 95])
    (line [81 135] [120 88])])
+(def arrow
+  (with-style {:fill :red}
+    (line [400 0] [400 200])
+    (line [400 200] [600 200])
+    (line [600 200] [200 400])
+    (line [200 400] [400 0])))
 
 (def leaf
   [(with-style {:stroke :lightgreen}
      (with-style {:fill :green}
        leaf-outline)
-     stem)
+     (line [30 0] [400 20])
+     )
    (with-style {:line-dash [3]}
-     texture)])
+     texture)
+     arrow
+   (circle [400 400] 100)
+
+   ])
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Blinky
