@@ -24,11 +24,12 @@
 ;;;; Canvas mutations
 
 (def var-table
-  {:ex1 #'ex1/picture
-   :house #'ex1/house
-   :blinky #'ex1/blinky
+  {:ex1      #'ex1/picture
+   :house    #'ex1/house
+   :blinky   #'ex1/blinky
    :election #'ex3/election
-   :state #'stateful/demo})
+   :state    #'stateful/demo
+   :nav      #'stateful/nav-demo})
 
 (defn switch! [sym]
   (reset! current-drawing (get var-table sym)))
