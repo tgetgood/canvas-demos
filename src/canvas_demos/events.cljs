@@ -40,7 +40,14 @@
                  (reset! drag-state (c-space-point e)))
    :mouse-up   (fn [e]
                  (reset! drag-state nil))
+
    ;; :click      (fn [e] (println (c-space-point e)))
+
+   :key-down (fn [e]
+               (cond
+                 (= (.-key e) "j") (db/dec-slide)
+                 (= (.-key e) "k") (db/inc-slide)
+                 :else nil))
 
    :mouse-move (fn [e]
                  (when @drag-state
@@ -69,6 +76,7 @@
 
 (defn register-handlers! [elem]
   (reset! registered-listeners handlers)
+  (aset elem "tabIndex" 1000)
   (doseq [[event cb] @registered-listeners]
     (.addEventListener elem (kw->js event) cb)))
 

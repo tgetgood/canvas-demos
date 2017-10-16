@@ -2,7 +2,9 @@
   (:require [canvas-demos.canvas-utils :as canvas]
             [canvas-demos.examples.ex1 :as ex1]
             [canvas-demos.examples.ex3 :as ex3]
-            [canvas-demos.examples.stateful :as stateful]))
+            [canvas-demos.examples.presentation :as presentation]
+            [canvas-demos.examples.stateful :as stateful]
+            [canvas-demos.shapes.affine :refer [translate]]))
 
 ;;;;; State
 
@@ -24,12 +26,38 @@
 ;;;; Canvas mutations
 
 (def var-table
-  {:ex1      #'ex1/picture
-   :house    #'ex1/house
-   :blinky   #'ex1/blinky
-   :election #'ex3/election
-   :state    #'stateful/demo
-   :nav      #'stateful/nav-demo})
+  {:ex1          #'ex1/picture
+   :house        #'ex1/house
+   :blinky       #'ex1/blinky
+   :election     #'ex3/election
+   :state        #'stateful/demo
+   :nav          #'stateful/nav-demo
+   :presentation #'presentation/go})
 
 (defn switch! [sym]
   (reset! current-drawing (get var-table sym)))
+
+;;;;; Logic to turn this into presentation software
+
+(defonce cursor (atom 0))
+
+(defonce slides (atom nil))
+
+(defn- set-slide-window []
+  (let [{:keys [zoom offset]} (get @@slides @cursor)]
+    (swap! window assoc :zoom zoom :offset (mapv (partial * zoom) offset))))
+
+(defn start-pres [[pres shape]]
+  (reset! slides pres)
+  (reset! cursor 0)
+
+  (reset! current-drawing shape)
+  (set-slide-window))
+
+(defn inc-slide []
+  (swap! cursor #(min (inc %) (count @@slides)))
+  (set-slide-window))
+
+(defn dec-slide []
+  (swap! cursor #(max (dec %) 0))
+  (set-slide-window))

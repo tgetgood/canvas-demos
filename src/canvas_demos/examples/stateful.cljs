@@ -7,14 +7,14 @@
 
 (def circle
   (dd [.beginPath
-       (.arc 100 100 50 0 (* 2 js/Math.PI))
+       (.arc 0 0 50 0 (* 2 js/Math.PI))
        .stroke
        .closePath]))
 
 (def red-circle
   (dd [(aset "strokeStyle" "red" )
        .beginPath
-       (.arc 300 100 50 0 (* 2 js/Math.PI))
+       (.arc 0 0 50 0 (* 2 js/Math.PI))
        .stroke
        .closePath]))
 
@@ -22,7 +22,7 @@
   (dd [.save
        (aset "strokeStyle" "red" )
        .beginPath
-       (.arc 300 100 50 0 (* 2 js/Math.PI))
+       (.arc 0 0 50 0 (* 2 js/Math.PI))
        .stroke
        .closePath
        .restore]))
@@ -30,7 +30,7 @@
 (def dotted-circle
   (dd [(.setLineDash #js [10 10])
        (aset "strokeStyle" "green")
-       (.arc 200 300 50 0 (* 2 js/Math.PI))
+       (.arc 0 0 50 0 (* 2 js/Math.PI))
        .stroke]))
 
 (def demo
