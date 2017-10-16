@@ -63,11 +63,20 @@
 
 (defmethod set-style* :fill
   [ctx _ v]
-  (aset ctx "fillStyle" (maybe-gradient ctx v)))
+  (if (nil? v)
+    (js-delete ctx "fillStyle")
+    (aset ctx "fillStyle" (maybe-gradient ctx v))))
 
 (defn- set-style! [ctx style]
   (doseq [[k v] style]
     (set-style* ctx k v)))
+
+(def blank-slate
+  {:fill nil
+   :line-dash #js []
+   :stroke :black
+   :line-width 1
+   })
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Canvas Wrapper
@@ -80,6 +89,7 @@
 
 (defprotocol ICanvas
   (clear [this] "Restore the canvas to its initial state.")
+  (blank [this])
 
   (apply-affine-tx [this atx] "Multiply the current tx by atx")
   (set-affine-tx [this atx] "Set the current affine tx matrix")
@@ -101,6 +111,8 @@
     (let [width (.-clientWidth elem)
           height (.-clientHeight elem)]
       (.clearRect ctx 0 0 width height)))
+  (blank [_]
+    (set-style! ctx blank-slate))
 
   (apply-affine-tx [_ [a b c d e f]]
     (.transform ctx a b c d e f))

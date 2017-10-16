@@ -61,6 +61,12 @@
 ;;;;; API
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(def wipe-hack
+  (reify
+    Drawable
+    (draw [_ ctx]
+      (canvas/blank ctx))))
+
 (defn with-style
   "Wraps shapes in a container shape with the given style applied to it."
   [style & shapes]
