@@ -8,23 +8,23 @@
 (def circle
   (dd [.beginPath
        (.arc 0 0 50 0 (* 2 js/Math.PI))
-       .stroke
-       .closePath]))
+       .closePath
+       .stroke]))
 
 (def red-circle
   (dd [(aset "strokeStyle" "red" )
        .beginPath
        (.arc 0 0 50 0 (* 2 js/Math.PI))
-       .stroke
-       .closePath]))
+       .closePath
+       .stroke]))
 
 (def safe-red-circle
   (dd [.save
        (aset "strokeStyle" "red" )
        .beginPath
        (.arc 0 0 50 0 (* 2 js/Math.PI))
-       .stroke
        .closePath
+       .stroke
        .restore]))
 
 (def dotted-circle

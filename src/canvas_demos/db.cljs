@@ -3,8 +3,7 @@
             [canvas-demos.examples.ex1 :as ex1]
             [canvas-demos.examples.ex3 :as ex3]
             [canvas-demos.examples.presentation :as presentation]
-            [canvas-demos.examples.stateful :as stateful]
-            [canvas-demos.shapes.affine :refer [translate]]))
+            [canvas-demos.examples.stateful :as stateful]))
 
 ;;;;; State
 
@@ -34,7 +33,11 @@
    :nav          #'stateful/nav-demo
    :presentation #'presentation/go})
 
+(declare slides)
+
 (defn switch! [sym]
+  (reset! slides nil)
+  (swap! window assoc :zoom 1 :offset [0 0])
   (reset! current-drawing (get var-table sym)))
 
 ;;;;; Logic to turn this into presentation software
@@ -44,7 +47,7 @@
 (defonce slides (atom nil))
 
 (defn- set-slide-window []
-  (let [{:keys [zoom offset]} (get @@slides @cursor)]
+  (when-let [{:keys [zoom offset]} (get @@slides @cursor)]
     (swap! window assoc :zoom zoom :offset (mapv (partial * zoom) offset))))
 
 (defn start-pres [[pres shape]]
@@ -54,10 +57,13 @@
   (reset! current-drawing shape)
   (set-slide-window))
 
-(defn inc-slide []
+(defn next-slide []
   (swap! cursor #(min (inc %) (count @@slides)))
   (set-slide-window))
 
-(defn dec-slide []
+(defn prev-slide []
   (swap! cursor #(max (dec %) 0))
   (set-slide-window))
+
+(defn pres! []
+  (start-pres canvas-demos.examples.presentation/pres))

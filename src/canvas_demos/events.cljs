@@ -45,8 +45,8 @@
 
    :key-down (fn [e]
                (cond
-                 (= (.-key e) "j") (db/dec-slide)
-                 (= (.-key e) "k") (db/inc-slide)
+                 (= (.-key e) "j") (db/next-slide)
+                 (= (.-key e) "k") (db/prev-slide)
                  :else nil))
 
    :mouse-move (fn [e]
