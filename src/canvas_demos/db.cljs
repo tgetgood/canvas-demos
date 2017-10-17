@@ -30,15 +30,15 @@
    :blinky       #'ex1/blinky
    :election     #'ex3/election
    :state        #'stateful/demo
-   :nav          #'stateful/nav-demo
+   :rings        #'presentation/rings
    :presentation #'presentation/go})
 
 (declare slides)
 
 (defn switch! [sym]
   (reset! slides nil)
-  (swap! window assoc :zoom 1 :offset [0 0])
-  (reset! current-drawing (get var-table sym)))
+  (reset! current-drawing (get var-table sym))
+  (swap! window assoc :zoom 1 :offset [0 0]))
 
 ;;;;; Logic to turn this into presentation software
 

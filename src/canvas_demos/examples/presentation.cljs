@@ -7,6 +7,10 @@
              [circle line rectangle textline wipe-hack with-style]]
             [clojure.string :as string]))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Draw fns
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn screen-box [dim]
   (let [[w h] dim]
     (rectangle {:fill "rgba(0,0,0,0)"} [0 0] w h)))
@@ -15,16 +19,9 @@
   (screen-box (canvas-utils/canvas-container-dimensions)))
 
 (def slide-box
-  [(screen-box [1280 720])
-   ;; HACK: Broken styling fix
-   (line [0 0] [0 0])])
+  [(screen-box [1280 720])])
 
-(defn vcentre [x]
-  (let [w (or (:width (meta x)) 100)]
-    )
-  )
-
-(def code-box
+(def code-background
   (rectangle {:style {:fill "#E1E1E1"
                       :stroke "rgba(0,0,0,0)"}
               :bottom-left [0 0]
@@ -35,7 +32,7 @@
   (let [lines       (string/split s #"\n")
         line-height 16
         box-height  (* (inc (count lines)) line-height)]
-    [(scale code-box 500 box-height)
+    [(scale code-background 500 box-height)
      (line {:stroke :black} [30 0] [30 box-height])
      (with-style {:font "14px monospace"}
        (map-indexed (fn [i line]
@@ -43,29 +40,6 @@
                         [(textline (str (inc i)) [5 h] )
                          (textline line [35 h])]))
                     lines))]))
-
-(def d1
-  (set-code "
-const circle = ctx => {
-  ctx.beginPath()
-  ctx.arc(100, 100, 50, 0, 2 * Math.PI)
-  ctx.endPath()
-  ctx.stroke()
-}
-
-const redCircle = ctx => {
-  ctx.strokeStyle = 'red'
-  ctx.beginPath()
-  ctx.arc(300, 100, 50, 0, 2 * Math.PI)
-  ctx.endPath()
-  ctx.stroke()
-}
-"))
-
-(def call1
-  (set-code "circle(ctx)\nredCircle(ctx)"))
-
-(def call2 (set-code "redCircle(ctx)\ncircle(ctx)"))
 
 (defn text [t p]
   (textline {:font "14px sans serif"} t p))
@@ -90,7 +64,42 @@ const redCircle = ctx => {
   (let [w (* 12 (count text))]
     (textline {:font "30px serif"} text [(- 640 (/ w 2)) 660])))
 
+(defn point [text p]
+  (textline {:font "20px sans serif"} (str "• " text) p))
+
+(defn points [& lines]
+  (map-indexed (fn [i text]
+                 (point text [0 (- (* i 50))]))
+               lines))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Slides
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;;;; First slide
+
+(def d1
+  (set-code "
+const circle = ctx => {
+  ctx.beginPath()
+  ctx.arc(100, 100, 50, 0, 2 * Math.PI)
+  ctx.endPath()
+  ctx.stroke()
+}
+
+const redCircle = ctx => {
+  ctx.strokeStyle = 'red'
+  ctx.beginPath()
+  ctx.arc(300, 100, 50, 0, 2 * Math.PI)
+  ctx.endPath()
+  ctx.stroke()
+}
+"))
+
+(def call1
+  (set-code "circle(ctx)\nredCircle(ctx)"))
+
+(def call2 (set-code "redCircle(ctx)\ncircle(ctx)"))
 
 (def state-1
   [slide-box
@@ -236,19 +245,18 @@ dottedCircle = ctx => {
 
 ;;;; Desires Slide
 
-(defn point [text p]
-  (textline {:font "20px sans serif"} (str "• " text) p))
-
 (def what-do-we-want
   [slide-box
 
    (title "Properties of a Less Painful Graphics Language (My Opinions)")
 
-   (point "Stateless (subdrawings are completely independent)" [300 500])
-   (point "Shapes are Data" [300 450])
-   (point "Composites are First Class" [300 400])
-   (point "Immediate Mode (at all levels)" [300 350])
-   (point "Minimize Arbitrary Non Intuitives" [300 300])])
+   (translate
+    (points "Stateless (subdrawings are completely independent)"
+            "Shapes are Data"
+            "Composites are First Class"
+            "Immediate Mode (at all levels)"
+            "Minimize Arbitrary Non Intuitives")
+    330 500)])
 
 ;;;; Theory slide
 
@@ -257,13 +265,68 @@ dottedCircle = ctx => {
 
    (title "Basic Ideas")
 
-   (point "The basic unit is the path (lines, beziers, etc.)" [300 500])
-   (point "Paths can be composed (joined end to end)" [300 450])
-   (point "Paths can be composited (overlayed one on the other)" [300 400])
-   (point "Styles can be applied to any path, or group of paths" [300 350])
-   (point "Deepest nesting wins (this might be a mistake)" [300 300])
-   (point "Affine Transformations as a first class compositing mechanism" [300 250])
-   ])
+   (translate
+    (points "The basic unit is the path (lines, beziers, etc.)"
+            "Paths can be composed (joined end to end)"
+            "Paths can be composited (overlayed one on the other)"
+            "Styles can be applied to any path, or group of paths"
+            "Deepest nesting wins (this might be a mistake)"
+            "Affine Transformations as a first class compositing mechanism")
+    300 500)])
+
+;;;;; Composite Examples
+
+(def composites
+  [slide-box
+   (title "Shared Structure at Multiple Levels")
+
+   (translate
+    (set-code "(def rings
+  [(assoc circle ::centre [100 100])
+   (assoc circle ::centre [160 100])
+   (assoc circle ::centre [220 100])])")
+    100 500)
+
+   (translate
+    (let [circle (circle {:centre [0 0] :radius 50})]
+      [circle
+       (assoc circle :centre [60 0])
+       (assoc circle :centre [120 0])])
+    200 400)
+
+   (translate
+    (set-code "(assoc rings ::centre [400 400])")
+    100 250)
+
+   (textbox "Not so fast. What is the centre of rings?" [100 200])
+
+   (textbox "Affine transformations let us handle compositing at all levels
+   identically:" [700 600])
+
+   (translate
+    (set-code "(def circle
+  {::type ::circle
+   ::centre [0 0]
+   ::radius 1})
+
+(def rings
+  [(-> circle (scale 50))
+   (-> circle (scale 50) (translate 60 0))
+   (-> circle (scale 50) (translate 120 0))])
+
+(translate rings 100 100)")
+    700 350)])
+
+;;;;; Further Reading
+
+(def related-projects
+  [slide-box
+   (title "Related Projects")
+
+   (translate
+    (points "Nile (https://github.com/damelang/nile)"
+            "Apparatus (aprt.us)" )
+    450 500)])
 
 (defn default-zoom []
   (let [[w h] (canvas-utils/canvas-container-dimensions)]
@@ -273,9 +336,12 @@ dottedCircle = ctx => {
   [{:zoom (default-zoom) :offset [0 0] :slide state-1}
    {:zoom (default-zoom) :offset [-1500 0] :slide state-2}
    {:zoom (default-zoom) :offset [-3000] :slide state-3}
-   {:zoom (default-zoom) :offset [0 1000] :slide what-do-we-want}
-   {:zoom (default-zoom) :offset [-1500 1000] :slide data-benefits}
-   {:zoom (default-zoom) :offset [-3000 1000] :slide theory-of}])
+   {:zoom (default-zoom) :offset [0 1200] :slide what-do-we-want}
+   {:zoom (default-zoom) :offset [-1500 1200] :slide data-benefits}
+   {:zoom (default-zoom) :offset [-3000 1200] :slide theory-of}
+   {:zoom (default-zoom) :offset [0 2400] :slide composites}
+   {:zoom (default-zoom) :offset [-1500 2400] :slide related-projects}
+   {:zoom (default-zoom) :offset [-3000 2400] :slide [slide-box]}])
 
 (def go
   (map (fn [{z :zoom [x y] :offset s :slide}]
@@ -283,3 +349,11 @@ dottedCircle = ctx => {
     show))
 
 (def pres [#'show #'go])
+
+;;;;; Rings demo
+
+(def rings
+  (let [circle (circle {:line-width 0.02} [0 0] 1)]
+    [(-> circle (scale 50))
+     (-> circle (scale 50) (translate 60 0))
+     (-> circle (scale 50) (translate 120 0))]))
