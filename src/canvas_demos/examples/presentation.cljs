@@ -246,8 +246,8 @@ dottedCircle = ctx => {
 
    (point "Stateless (subdrawings are completely independent)" [300 500])
    (point "Shapes are Data" [300 450])
-   (point "Immediate Mode (at all levels)" [300 400])
-   (point "Compositing as Concatenation" [300 350])
+   (point "Composites are First Class" [300 400])
+   (point "Immediate Mode (at all levels)" [300 350])
    (point "Minimize Arbitrary Non Intuitives" [300 300])])
 
 ;;;; Theory slide
