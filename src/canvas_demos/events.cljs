@@ -76,6 +76,7 @@
 
 (defn register-handlers! [elem]
   (reset! registered-listeners handlers)
+  ;; HACK: Allows keypress events on canvas
   (aset elem "tabIndex" 1000)
   (doseq [[event cb] @registered-listeners]
     (.addEventListener elem (kw->js event) cb)))
