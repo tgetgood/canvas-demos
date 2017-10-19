@@ -2,7 +2,105 @@
 
 This is a sandbox to play with ideas about new graphical programming languages.
 
-## Experiments
+## Goals
+
+The creation of a graphics programing language that lets one program graphics
+and possibly even UIs in a simple, lisp like fashion. In particular it should
+be:
+
+* Declarative: images are just data that gets passed to a renderer
+* Stateless: composition of shapes in itself should not change the properties of
+  the constituent parts
+* Immediate Mode: no retained state between renders
+* Uniform: manipulation of composite images should use the same functions as the
+  manipulation of their parts
+* Intuitive where it can be, well reasoned where it can't: convention is not an
+  excuse for gotchas
+
+N.B.: This project is only concerned currently with 2d vector graphics using
+HTML canvas. I would like to extend that to webgl and even opengl on the jvm
+eventually, but one thing at a time.
+
+## How to Use it
+
+### Start Application:
+
+```
+lein clean
+lein figwheel dev
+```
+
+Figwheel will automatically push cljs changes to the browser.
+
+Wait a bit, then browse to [http://localhost:3449](http://localhost:3449).
+
+### Play
+
+My own dev workflow uses the `canvas-demos.core/switch!` function to switch the
+var curently being rendered to the screen. It's important that it be a var so
+that changes reloaded by figwheel trigger a rerender of the canvas.
+
+Look in the table `canvas-demos.core/var-table` for a list of existing
+toys. Some are more interesting than others, but they all show different ways to
+use the language.
+
+In particular look at `:election` --- a datagraphic summarising the results of
+the last several Canadian Federal elections --- and `:presentation` --- a
+slideshow about this library written using this library --- which is the
+default. To run the slideshow as a slideshow run
+`(canvas-demos.core/presentation!)`. Use `j` and `k` to move forward and back
+through the slides.
+
+Once you've loaded a picture, go ahead and play around with the code defining it
+to see how the drawing works, add new types of shapes, or anything you want.
+
+If you pass a sequence of images to `canvas-demos.drawing/animate!` it will play
+the sequence of images one per animation frame. Basic animations are simple via
+`(map #(translate x % 0) (range))`. Compositing images can be done as with
+`canvas-demos.examples.ex1/composite` (no special ns exists as yet for animation
+support).
+
+## Ideas
+
+### Shapes as data
+
+Shapes are just data (currently records, though that may change) along the lines
+of
+
+```clojure
+#canvas-demos.drawings.base.Line{:from [0 0] :to [1000 1000] :style {:stroke :red}}
+```
+
+The `canvas-demos.shapes.base` namespace contains convenience functions to
+create lines, circles, rectangles, and pixels (pixels are just squares of side
+length 1, not actual pixels, thus they respond to affine transformations just
+like everything else).
+
+All shapes have a `:style` key which defines the styles applied to the
+shape. Part of statelessness is that the global state of canvas is wrapped so
+that shape styles don't interfere. This mostly works, but there are still a few
+quirks around paths that can cause weird behaviour. If you see something, say
+something.
+
+### Affine Transformations
+
+Affine Transformations are the natural compositing mechanism for vector
+graphics. They allow composite shapes to be manipulated in the same fashion as
+individual path segments.
+
+See the `canvas-demos.shapes.affine` namespace for details. Currently there are
+helper functions for translation, rotation, scaling, and reflection. You can
+easily make your own as well if you see fit.
+
+### Infinite Canvas
+
+By default, panning and scrolling make the canvas respond as does your favourite
+maps program. This makes exploring images quick and fun. Beyond that I'm
+positive it's useful, just give me time to figure out how to explain that.
+
+## Experimental Directions
+
+This section is old, and some of these have been shelved. Due for an update.
 
 #### Stateless Declarative API to HTML Canvas
 
@@ -94,44 +192,6 @@ fide immediate mode DOM.
 That kind of sounds like a terrible idea: replace the dom with widgets drawn on
 a canvas. But what happens when we start using webGL to render those widgets?
 Remember what personal websites looked like in the 90's?
-
-## Issues
-
-This is very much a work in progress. List of weirdness follows:
-
-* Width of lines doesn't scale with zoom. This means that if you create a circle
-  with stroke-width 10px and then zoom out, it eventually becomes a disc, no
-  matter how large the radius originally was. This means that some style scalars
-  actually need to be transformed with the projection logic. Didn't think of
-  that before... I guess that really we need to draw a line between lines and
-  rectangles. One dimensional things don't have width so it can't scale. Strokes
-  with a set width are actually 2D. That means that they should disappear as you
-  zoom out, but lines shouldn't. That's weird.
-
-## Development Mode
-
-### Run application:
-
-```
-lein clean
-lein figwheel dev
-```
-
-Figwheel will automatically push cljs changes to the browser.
-
-Personally I basically never run `lein clean`, but the I'm not about to change
-the docs.
-
-Wait a bit, then browse to [http://localhost:3449](http://localhost:3449).
-
-## Play
-
-Look in the `canvas-demos.examples` ns for an index of the demos. Run
-`canvas-demos.examples/switch` with the key to the example you want to set it
-running.
-
-Now go ahead and play around with the code defining the picture to see how the
-drawing works, add new types of shapes, or anything you want.
 
 ## References
 
