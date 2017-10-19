@@ -1,7 +1,9 @@
 (ns canvas-demos.examples.presentation
   (:require [canvas-demos.canvas-utils :as canvas-utils]
+            [canvas-demos.examples.ex1 :as ex1]
+            [canvas-demos.examples.ex3 :as ex3]
             [canvas-demos.examples.stateful :as stateful]
-            [canvas-demos.shapes.affine :refer [scale translate]]
+            [canvas-demos.shapes.affine :refer [reflect scale translate]]
             [canvas-demos.shapes.base
              :refer
              [circle line rectangle textline wipe-hack with-style]]
@@ -13,7 +15,7 @@
 
 (defn screen-box [dim]
   (let [[w h] dim]
-    (rectangle {:fill "rgba(0,0,0,0)"} [0 0] w h)))
+    (rectangle {:fill "rgba(0,0,0,0.05)"} [0 0] w h)))
 
 (defn fullscreen-box []
   (screen-box (canvas-utils/canvas-container-dimensions)))
@@ -62,7 +64,7 @@
 
 (defn title [text]
   (let [w (* 12 (count text))]
-    (textline {:font "30px serif"} text [(- 640 (/ w 2)) 660])))
+    (textline {:font "30px serif"} text [(- 570 (/ w 2)) 660])))
 
 (defn point [text p]
   (textline {:font "20px sans serif"} (str "• " text) p))
@@ -79,8 +81,7 @@
 ;;;;; First slide
 
 (def d1
-  (set-code "
-const circle = ctx => {
+  (set-code "const circle = ctx => {
   ctx.beginPath()
   ctx.arc(100, 100, 50, 0, 2 * Math.PI)
   ctx.endPath()
@@ -138,8 +139,7 @@ const redCircle = ctx => {
    global state from a stack. This allows us to guard our code from our own
    modifications." [100 550])
 
-   (translate (set-code "
-const safeRedCircle = ctx => {
+   (translate (set-code "const safeRedCircle = ctx => {
   ctx.save()
   ctx.strokeStyle = 'red'
   ctx.beginPath()
@@ -163,8 +163,7 @@ const safeRedCircle = ctx => {
 
    (textbox "But now suppose we get a library fn dottedCircle:" [100 550])
    (translate
-    (set-code "
-dottedCircle = ctx => {
+    (set-code "dottedCircle = ctx => {
   ctx.setLineDash([3])
   ctx.strokeStyle = 'green'
   ctx.arc(200, 300, 50, 0, 2 * Math.PI)
@@ -201,8 +200,7 @@ dottedCircle = ctx => {
 ;;;;; Benefits of Data
 
 (def data-shape
-  (set-code "
-(def circle
+  (set-code "(def circle
   {::type ::circle
    ::style {}
    ::centre [0 0]
@@ -216,8 +214,7 @@ dottedCircle = ctx => {
                          :stroke-style :green})) "))
 
 (def shape-call
-  (set-code "
-[(assoc dotted-circle ::centre [200 300])
+  (set-code "[(assoc dotted-circle ::centre [200 300])
  (assoc red-circle ::centre [300 100])
  (assoc circle ::centre [100 100])]"))
 
@@ -252,11 +249,11 @@ dottedCircle = ctx => {
 
    (translate
     (points "Stateless (subdrawings are completely independent)"
-            "Shapes are Data"
+            "Declarative (everything is data)"
             "Composites are First Class"
             "Immediate Mode (at all levels)"
             "Minimize Arbitrary Non Intuitives")
-    330 500)])
+    400 480)])
 
 ;;;; Theory slide
 
@@ -267,12 +264,13 @@ dottedCircle = ctx => {
 
    (translate
     (points "The basic unit is the path (lines, beziers, etc.)"
-            "Paths can be composed (joined end to end)"
-            "Paths can be composited (overlayed one on the other)"
-            "Styles can be applied to any path, or group of paths"
-            "Deepest nesting wins (this might be a mistake)"
-            "Affine Transformations as a first class compositing mechanism")
-    300 500)])
+            "Paths can be composed (joined end to end) to create longer paths"
+            "Paths can be composited (overlayed one on the other) to create arbitrary shapes"
+            "Shapes in turn can be composited (what would it mean to compose shapes?)"
+            "Affine Transformations as a first class compositing mechanism"
+            "Hierarchical construction of images by composing and compositing"
+            "Uniform programming at all levels")
+    250 500)])
 
 ;;;;; Composite Examples
 
@@ -328,6 +326,19 @@ dottedCircle = ctx => {
             "Apparatus (aprt.us)" )
     450 500)])
 
+;;;; Joke slide
+
+(def pac
+  [slide-box
+   (title "Animations")
+
+   (-> [ex1/blinky
+        (-> (ex1/pacman* 40)
+            (reflect [0 1])
+            (translate -20 10))]
+       (scale 10)
+       (translate 600 200))
+   ])
 (defn default-zoom []
   (let [[w h] (canvas-utils/canvas-container-dimensions)]
     (min (/ w 1280) (/ h 720))))
@@ -341,7 +352,11 @@ dottedCircle = ctx => {
    {:zoom (default-zoom) :offset [-3000 1200] :slide theory-of}
    {:zoom (default-zoom) :offset [0 2400] :slide composites}
    {:zoom (default-zoom) :offset [-1500 2400] :slide related-projects}
-   {:zoom (default-zoom) :offset [-3000 2400] :slide [slide-box]}])
+   {:zoom (default-zoom) :offset [-3000 2400] :slide pac}
+   {:zoom (default-zoom) :offset [-4500 2400] :slide [(title "Data Vis")
+                                                      (-> ex3/election-summary
+                                                          (scale 0.36)
+                                                          (translate 220 30))]}])
 
 (def go
   (map (fn [{z :zoom [x y] :offset s :slide}]

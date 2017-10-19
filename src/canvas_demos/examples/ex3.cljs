@@ -212,7 +212,7 @@
      (line [0 100] [480 100])]))
 
 (def bar
-  (rectangle [0 0] 50 1000))
+  (rectangle {:stroke "rgba(0,0,0,0)"} [0 0] 50 1000))
 
 (defn histogram [[year results]]
   [(translate grid-lines -20 0)
