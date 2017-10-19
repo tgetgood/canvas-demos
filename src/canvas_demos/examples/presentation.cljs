@@ -354,7 +354,7 @@ const redCircle = ctx => {
    {:zoom (default-zoom) :offset [-1500 2400] :slide related-projects}
    {:zoom (default-zoom) :offset [-3000 2400] :slide pac}
    {:zoom (default-zoom) :offset [-4500 2400] :slide [(title "Data Vis")
-                                                      (-> ex3/election-summary
+                                                      (-> ex3/election
                                                           (scale 0.36)
                                                           (translate 220 30))]}])
 

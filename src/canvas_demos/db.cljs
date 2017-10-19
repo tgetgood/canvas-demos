@@ -1,9 +1,6 @@
 (ns canvas-demos.db
   (:require [canvas-demos.canvas-utils :as canvas]
-            [canvas-demos.examples.ex1 :as ex1]
-            [canvas-demos.examples.ex3 :as ex3]
-            [canvas-demos.examples.presentation :as presentation]
-            [canvas-demos.examples.stateful :as stateful]))
+            [canvas-demos.examples.ex1 :as ex1]))
 
 ;;;;; State
 
@@ -20,24 +17,6 @@
     (swap! window assoc :width w :height h)))
 
 (defn reset-zoom! []
-  (swap! window assoc :zoom 1 :offset [0 0]))
-
-;;;; Canvas mutations
-
-(def var-table
-  {:ex1          #'ex1/picture
-   :house        #'ex1/house
-   :blinky       #'ex1/blinky
-   :election     #'ex3/election
-   :state        #'stateful/demo
-   :rings        #'presentation/rings
-   :presentation #'presentation/go})
-
-(declare slides)
-
-(defn switch! [sym]
-  (reset! slides nil)
-  (reset! current-drawing (get var-table sym))
   (swap! window assoc :zoom 1 :offset [0 0]))
 
 ;;;;; Logic to turn this into presentation software
@@ -64,6 +43,3 @@
 (defn prev-slide []
   (swap! cursor #(max (dec %) 0))
   (set-slide-window))
-
-(defn pres! []
-  (start-pres canvas-demos.examples.presentation/pres))

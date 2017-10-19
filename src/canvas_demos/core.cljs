@@ -2,7 +2,11 @@
   (:require [canvas-demos.canvas-utils :as canvas]
             [canvas-demos.db :as db]
             [canvas-demos.drawing :as drawing]
-            [canvas-demos.events :as events]))
+            [canvas-demos.events :as events]
+            [canvas-demos.examples.ex1 :as ex1]
+            [canvas-demos.examples.ex3 :as ex3]
+            [canvas-demos.examples.presentation :as presentation]
+            [canvas-demos.examples.stateful :as stateful]))
 
 (defn dev-setup []
   (when goog.DEBUG
@@ -51,3 +55,23 @@
 (defn ^:export init []
   (dev-setup)
   (mount-root))
+
+;;;;; Playing around
+
+(def var-table
+  {:ex1          #'ex1/picture
+   :house        #'ex1/house
+   :blinky       #'ex1/blinky
+   :election     #'ex3/election
+   :state        #'stateful/demo
+   :rings        #'presentation/rings
+   :presentation #'presentation/go})
+
+(defn switch! [sym]
+  (drawing/stop-animation!)
+  (reset! db/slides nil)
+  (reset! db/current-drawing (get var-table sym))
+  (swap! db/window assoc :zoom 1 :offset [0 0]))
+
+(defn presentation! []
+  (db/start-pres presentation/pres))
