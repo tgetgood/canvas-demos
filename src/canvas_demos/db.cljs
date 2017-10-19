@@ -1,10 +1,10 @@
 (ns canvas-demos.db
   (:require [canvas-demos.canvas-utils :as canvas]
-            [canvas-demos.examples.ex1 :as ex1]))
+            [canvas-demos.examples.presentation :as presentation]))
 
 ;;;;; State
 
-(defonce current-drawing (atom #'ex1/house))
+(defonce current-drawing (atom #'presentation/go))
 
 (defonce ^:dynamic *redraw* true)
 

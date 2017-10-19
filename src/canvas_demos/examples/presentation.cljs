@@ -119,7 +119,7 @@ const redCircle = ctx => {
 
    (textbox
     "So far so good. Now let's say we refactor and the order in which we call
-    the fns get's swapped."
+    the fns gets swapped."
      [700 380])
 
    (translate call2 700 270)
